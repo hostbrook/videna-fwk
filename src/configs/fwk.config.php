@@ -3,9 +3,6 @@
 // File: /Videna/fwk.config.php
 // Desc: Framework main config file
 
-
-if ( !defined('PATH_ROOT') ) exit ('Access denied.');
-
 // PHP config settings:
 ini_set('error_reporting', E_ALL);
 ini_set('session.cookie_lifetime', 0);
@@ -15,12 +12,12 @@ ini_set('display_errors', 1);
 date_default_timezone_set('America/Edmonton'); 
 
 // Project paths, used in PHP scripts to include files
-define('PATH_VIEWS', PATH_ROOT . '/App/Views');
+define('PATH_VIEWS', 'App/Views/');
 
 // Logs/Debug/Error files
-define('PATH_APP_LOG', PATH_ROOT . '/logs/videna.log');
-define('PATH_PHP_LOG', PATH_ROOT . '/error_log');
-define('PATH_SRV_LOG', PATH_ROOT . '/logs/error.php');
+define('PATH_APP_LOG', 'logs/videna.log');
+define('PATH_PHP_LOG', 'error_log');
+define('PATH_SRV_LOG', 'logs/error.php');
 
 // Account types 0..255
 define('USR_UNREG', 0);

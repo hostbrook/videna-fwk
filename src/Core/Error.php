@@ -35,12 +35,10 @@ class Error {
      */
     public static function exceptionHandler($exception) {
 
-        $file = str_replace(PATH_ROOT, "", $exception->getFile());
-
         Log::add([
             'Uncaught exception:' => $exception->getCode(),
             'Description:' => trim($exception->getMessage()), 
-            'Thrown in File:' => $file .', Line:'. $exception->getLine(),
+            'Thrown in File:' => $exception->getFile() .', Line:'. $exception->getLine(),
             "Stack trace:" => $exception->getTraceAsString()
         ], 'FATAL Error: '. $exception->getMessage());
   

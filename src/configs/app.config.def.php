@@ -3,8 +3,6 @@
 // File: /Videna/configs/app.def.config.php
 // Desc: Default Application's config file
 
-if ( !defined('PATH_ROOT') ) return null;
-
 /**
  * Default Application constants
  */

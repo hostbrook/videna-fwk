@@ -15,14 +15,14 @@ class App {
 	public function __construct() {
 
 		// Connect default application config file
-		$path = PATH_ROOT . '/Videna/configs/app.config.def.php';
+		$path = PATH_FWK . 'configs/app.config.def.php';
 		if ( is_file($path) ) {
 			$this->config = include_once $path;
 		}
 		else Log::add( ["FATAL ERROR" => "Application config file not found."], "FATAL ERROR: Application config file not found.");
 
 		// Connect app config file
-		$path = PATH_ROOT . '/App/configs/app.config.php';
+		$path =  'App/configs/app.config.php';
 		if ( is_file($path) ) $this->config = array_merge($this->config, include_once $path);
 		
 	}

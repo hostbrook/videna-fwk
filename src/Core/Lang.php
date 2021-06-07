@@ -63,12 +63,12 @@ class Lang {
 		-------------------------------------------------------*/
 		
 		// Connect default language file
-		$lang_path = PATH_ROOT .'/App/lang/'. $config['default language'] . '.php';
+		$lang_path =  'App/lang/'. $config['default language'] . '.php';
 		if ( is_file($lang_path) )  $this->langArray = include_once $lang_path;
 		
 		// Connect new language file if required
 		if ( $this->getCode() != $config['default language'] ) {
-			$lang_path = PATH_ROOT .'/App/lang/'. $this->getCode() . '.php'; 
+			$lang_path = 'App/lang/'. $this->getCode() . '.php'; 
 			if ( is_file($lang_path) )  {
 				$new = include_once $lang_path;
 				$this->langArray = array_merge($this->langArray, $new);

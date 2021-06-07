@@ -26,12 +26,12 @@ class StaticPage extends \Videna\Core\Controller {
 	public function actionIndex(){
 
 		if ( isset($this->router['params']) ) {
-			$this->view = '/'. $this->router['view'] .'/'. implode('/', $this->router['params']);
+			$this->view = $this->router['view'] .'/'. implode('/', $this->router['params']);
 		}
 		elseif ( $this->router['view'] ==  $this->config['default controller'] )	{
-			$this->view = '/' .$this->config['default controller']. '/' .$this->config['default view'];
+			$this->view = $this->config['default controller']. '/' .$this->config['default view'];
 		}
-		else $this->view = '/'. $this->router['view'];
+		else $this->view = $this->router['view'];
 
 	}
 
@@ -46,7 +46,7 @@ class StaticPage extends \Videna\Core\Controller {
 	 */
 	public function actionError(){
 
-		$this->view = '/' .$this->config['default controller']. '/'. $this->config['error view'];
+		$this->view = $this->config['default controller']. '/'. $this->config['error view'];
 
 		// Check if Error view file exists.
 		if ( !is_file( PATH_VIEWS . $this->view  .'.php' ) ) {
@@ -99,7 +99,7 @@ class StaticPage extends \Videna\Core\Controller {
 			return isset($this->lang->langArray[$title]) ? $this->lang->langArray[$title] : 'Unknown';
 		}
 
-		$title = 'title ' . $this->view;	
+		$title = 'title /' . $this->view;	
 		if ( !isset($this->lang->langArray[$title]) ) {
 			$title = 'title /' .$this->config['default controller']. '/' . $this->config['default view'];
 			return isset($this->lang->langArray[$title]) ? $this->lang->langArray[$title] : '';
@@ -120,7 +120,7 @@ class StaticPage extends \Videna\Core\Controller {
 			return isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : 'Unknown error is occurred.';
 		}
 		
-		$description = 'description ' . $this->view;	
+		$description = 'description /' . $this->view;	
 		if ( !isset($this->lang->langArray[$description]) ) {
 			$description = 'description /' .$this->config['default controller']. '/' . $this->config['default view'];
 			return isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : '';
