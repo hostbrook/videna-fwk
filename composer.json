@@ -2,7 +2,7 @@
     "name": "hostbrook/videna-fwk",
     "description": "Videna PHP framework core",
     "type": "package",
-    "license": "GNU GENERAL PUBLIC LICENSE",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "HostBrook",
