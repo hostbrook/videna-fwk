@@ -1,0 +1,22 @@
+{
+    "name": "hostbrook/videna-fwk",
+    "description": "Videna PHP framework core",
+    "type": "package",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "HostBrook",
+            "email": "support@hostbrook.com",
+            "homepage": "https://hostbrook.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Videna\\": "src/"
+        }
+    }
+}
