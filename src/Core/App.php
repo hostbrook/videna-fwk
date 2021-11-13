@@ -7,43 +7,35 @@ namespace Videna\Core;
 
 
 class App {
-  
-	private $config = [];
-	private $router = [];
-
 
 	public function __construct() {
 
-		// Connect default application config file
-		$path = PATH_FWK . 'configs/app.config.def.php';
-		if ( is_file($path) ) {
-			$this->config = include_once $path;
-		}
-		else Log::add( ["FATAL ERROR" => "Application config file not found."], "FATAL ERROR: Application config file not found.");
+		Config::init();
+		Router::init();
 
-		// Connect app config file
-		$path =  'App/configs/app.config.php';
-		if ( is_file($path) ) $this->config = array_merge($this->config, include_once $path);
-		
 	}
 
 
-	public function execute() {
+	public function execute($argv = false) {
 
 		// DEFINING ROUTE PARAMETERS
-		if ( isset($this->config['custom router']) and class_exists($this->config['custom router']) ) {
-			$router = new $this->config['custom router']( $this->config );
+		if ($argv === false) {
+			// HTTP requests:
+			Router::parse();
 		}
-		else $router = new Router( $this->config );
-		$this->router = $router->parse();
-
+		else {
+			// Cron jobs:
+			Router::$argv = $argv;
+			Router::$controller = $argv[1];
+		}
+		
 		// EXECUTE ACTION AT THE CONTROLLER
-		$controller = 'App\\Controllers\\'.$this->router['controller'];
+		$controller = 'App\\Controllers\\' . Router::$controller;
 		
 		if ( class_exists($controller) ) {
 
-			$controller_object = new $controller( $this->config, $this->router );
-			$action = $this->router['action'];
+			$controller_object = new $controller();
+			$action = Router::$action;
 			
 			if ( method_exists($controller_object, 'action'.$action) ) {
 
@@ -51,13 +43,14 @@ class App {
 
 			}
 			else {
+				// Method/Action doesn't exist
 
 				Log::add([
-					'Error' =>  "Method  '$action' not found in the controller '$controller'.",
-					'URL' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+					"Error: Method  '$action' not found in the controller '$controller'.",
+					'URL: ' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
 				]);
 
-				$this->showErrorPage("Method  '$action' not found in the controller '$controller'.");
+				if ( $argv === false) $this->showErrorPage("Method  '$action' not found in the controller '$controller'.");
 
 			}
 
@@ -65,7 +58,13 @@ class App {
 		else {
 			// Class/Controller doesn't exist
 
-			$this->showErrorPage("Controller '$controller' not found");
+			if ( $argv !== false) {
+				Log::add([
+					"Error: Controller '$controller' not found.",
+					'URL: ' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+				]);
+			}
+			else $this->showErrorPage("Controller '$controller' not found");
 
 		}
 		
@@ -74,46 +73,49 @@ class App {
 
  /**
 	*  Redirect to Error Action if the requested controller (or action) does not exist.
-	*  If Error Controller (or action) does not exist - stop application with a fatal error.
+	*  If the Error Controller (or action) does not exist - stop application with a fatal error.
 	*/
 	private function showErrorPage() {
 
-		if ( !isset($this->config['default controller']) or !isset($this->config['error action']) ) {
+		if ( Config::get('default controller') === null or Config::get('error action') === null ) {
 			// Error Controller or Error Action isn't defined in the App config file
 
+			$errorDescription = 'FATAL Error: Either Default Controller or Error Action isn\'t defined in the config file.';
 			Log::add([
-				'FATAL Error' =>  'Either Default Controller or Error Action isn\'t defined in the config file.',
-				'URL request' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
-			], 'FATAL Error: Either Error Controller or Error Action isn\'t defined in the config file.');
+				$errorDescription,
+				'URL request: ' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+			], $errorDescription );
 
 		}
 
-		$this->router[ 'controller' ] = $this->config[ 'default controller' ];
-		$this->router[ 'action' ] = $this->config[ 'error action' ];
-		$this->router[ 'response' ] = 404;
+		Router::$controller = Config::get( 'default controller' );
+		Router::$action = Config::get( 'error action' );
+		Router::$response = 404;
 
-		$controller = 'App\\Controllers\\'.$this->router['controller'];
+		$controller = 'App\\Controllers\\' . Router::$controller;
 	
 		if ( !class_exists($controller) ) {
 			// Error Controller doesn't exist in /App/Controllers/
 
+			$errorDescription = "FATAL Error: The Error Controller '$controller' defined in App config file but doesn't exist in '/App/Controllers/'";
 			Log::add([
-					'FATAL Error' =>  "FATAL Error: The Error Controller '$controller' defined in App config file but doesn't exist in '/App/Controllers/'",
-					'URL request' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
-			], "FATAL Error: The Error Controller '$controller' is defined in App config file but doesn't exist in '/App/Controllers/'" );
+				$errorDescription,
+					'URL request' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+			], $errorDescription );
 
 		}
 
-		$controllerObject = new $controller( $this->config, $this->router );
-		$action = $this->router['action'];
+		$controllerObject = new $controller();
+		$action = Router::$action;
 		
 		if ( !method_exists($controllerObject, 'action'.$action) ) {
 			// Error method doesn't exist in Error Controller
 
+			$errorDescription = "The Error method '$action' is defined in App config file but not found in the defined Error controller '$controller'.";
 			Log::add([
-				'FATAL Error' =>  "The Error method '$action' defined in App config file but not found in the defined Error controller '$controller'.",
-				'URL' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
-			], "The Error method '$action' is defined in App config file but not found in the defined Error controller '$controller'.");
+				$errorDescription,
+				'URL' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+			], $errorDescription );
 
 		}
 
@@ -123,29 +125,5 @@ class App {
 	} // END showError()
 
 
-	/**
-	*  EXECUTE CRON JOB
-	*/
-	public function executeCronJob($argv) {
-
-		if ( $argv[1] == null ) Log::add( ['Cron job Error' => 'Cron job controller name missed.'], true);
-
-		// EXECUTE ACTION AT THE CONTROLLER
-		$controller = 'App\\Controllers\\'.$argv[1];
-		
-		if ( class_exists($controller) ) {
-
-			$controllerObject = new $controller( $this->config, $argv );
-			$action = $this->config['default action'];
-			
-			if ( method_exists($controllerObject, $action) ) {
-				$controllerObject->$action();
-			}
-			else Log::add([ 'Cron job Error' =>  "Method  '$action' not found in the controller '$controller'."], true);
-
-		}
-		else Log::add([ 'Cron job Error' =>  "Controller '$controller' not found"], true);
-
-	}
 
 } //END class App

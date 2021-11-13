@@ -36,11 +36,12 @@ class Error {
     public static function exceptionHandler($exception) {
 
         Log::add([
-            'Uncaught exception:' => $exception->getCode(),
-            'Description:' => trim($exception->getMessage()), 
-            'Thrown in File:' => $exception->getFile() .', Line:'. $exception->getLine(),
-            "Stack trace:" => $exception->getTraceAsString()
-        ], 'FATAL Error: '. $exception->getMessage());
+           'Uncaught exception code: ' . $exception->getCode(),
+           'Description: ' . trim($exception->getMessage()), 
+           'Thrown in File: ' . $exception->getFile() .', Line:'. $exception->getLine(),
+           'Stack trace:',
+           $exception->getTraceAsString()
+        ], 'FATAL Error: '. $exception->getMessage() );
   
     }
 

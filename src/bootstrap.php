@@ -24,11 +24,6 @@ set_exception_handler('Videna\Core\Error::exceptionHandler');
 
 // 5. Execute Application
 $app = new App();
-if ( isset($argv) ) 
-{
-	$app->executeCronJob($argv);
-} 
-else $app->execute();
-
+$app->execute( isset($argv) ? $argv : false );
 
 // END Bootstrap

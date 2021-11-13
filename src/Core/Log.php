@@ -9,12 +9,12 @@ abstract class Log {
 
 
   // Put errors and debug info in log file
-  public static function add($data = array('Break Point' => 'Stop Script'), $die = FALSE) {
+  public static function add($data = ['Break Point'], $die = FALSE) {
 
     $fp = fopen(PATH_APP_LOG, "a");
 
-    $logLine = "Date/Time:\t".date("Y-m-d H:i:s")."\r\n";    
-    foreach ( $data as $error_name => $error_descr ) $logLine .= $error_name."\t".$error_descr."\r\n";    
+    $logLine = date("Y-m-d H:i:s").($die ? ' FATAL ERROR' : ' DEBUG/INFO') . "\r\n";    
+    foreach ( $data as $error_descr ) $logLine .= $error_descr."\r\n";    
     $logLine .= "\r\n";
 
     $result = fwrite($fp, $logLine);
@@ -42,17 +42,7 @@ abstract class Log {
 
     $lines = file($file);
 
-    foreach ($lines as $line_num => $line) {
-
-      if ( !strpos($line, "\t") ) {
-        $log[$line_num] = ['&nbsp;',  $line];
-      }
-      else {
-        list($param, $value) = explode("\t", $line);
-        $log[$line_num] = [$param, $value];
-      }
-      
-    }
+    foreach ($lines as $line_num => $line) $log[$line_num] = $line;
 
     return $log;
 
@@ -63,12 +53,12 @@ abstract class Log {
     
     if ( is_file($file) ) {
       if (unlink($file)) {
-        return 'Deleted successfully.';
+        return 200;
       }
-      else return 'Error occurred during deleting.';
+      else return 500;
     }
 
-    return 'File not found.';
+    return 404;
 
   }
 

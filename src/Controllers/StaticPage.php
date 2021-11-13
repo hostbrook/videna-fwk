@@ -7,6 +7,8 @@ namespace Videna\Controllers;
 
 use \Videna\Core\Log;
 use \Videna\Core\User;
+use \Videna\Core\Router;
+use \Videna\Core\Config;
 
 /**
  * Class to maintain Static Page requests  
@@ -14,24 +16,12 @@ use \Videna\Core\User;
 class StaticPage extends \Videna\Core\Controller {
 
 	protected $viewArgs;
-	protected $view = false;
 
 
 	/**
-	 * Index action is a default action, keeps the route map:
-	 * /<controller>/.../<controller>/<action>/<param_1>/../<param_n>
-	 * - All parameters in the URL are not required
-	 * - Path to the page consists of parameters <controller> and <param>
+	 * Index action is a default action
 	 */
-	public function actionIndex(){
-
-		if ( isset($this->router['params']) ) {
-			$this->view = $this->router['view'] .'/'. implode('/', $this->router['params']);
-		}
-		elseif ( $this->router['view'] ==  $this->config['default controller'] )	{
-			$this->view = $this->config['default controller']. '/' .$this->config['default view'];
-		}
-		else $this->view = $this->router['view'];
+	public function actionIndex() {
 
 	}
 
@@ -44,16 +34,16 @@ class StaticPage extends \Videna\Core\Controller {
 	 * - Requested Class or Method not found in App class
 	 * - redirection from action if error needs to be shown
 	 */
-	public function actionError(){
+	public function actionError() {
 
-		$this->view = $this->config['default controller']. '/'. $this->config['error view'];
+		Router::$view = Config::get('default controller'). '/'. Config::get('error view');
 
 		// Check if Error view file exists.
-		if ( !is_file( PATH_VIEWS . $this->view  .'.php' ) ) {
+		if ( !is_file( PATH_VIEWS . Router::$view  .'.php' ) ) {
 
 			Log::add([ 
-				'FATAL Error' => 'The Error page not found.',
-				'Requested URI' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] ),
+				'FATAL Error: The Error page not found.',
+				'Requested URI' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] ),
 				'FATAL Error: The Error page not found.'
 			]);
 			
@@ -61,17 +51,25 @@ class StaticPage extends \Videna\Core\Controller {
 
 	}
 
+
+	/**
+	 * Filter "before" each action
+	 */
+	protected function before() {
+
+	}
+
+
   /**
 	 * Filter "after" each action
 	 */
 	protected function after() {
 
-
 		// Check if view file exists. If not -show 404 page.
-		if ( !is_file( PATH_VIEWS . $this->view  .'.php' ) ) {
+		if ( !is_file( PATH_VIEWS . Router::$view  .'.php' ) ) {
 
-			$this->router['action'] =  $this->config['error action'];
-			$this->router['response'] = 404;
+			Router::$action =  Config::get('error action');
+			Router::$response = 404;
 			
 			$this->actionError();
 
@@ -84,7 +82,7 @@ class StaticPage extends \Videna\Core\Controller {
 		$this->viewArgs['description'] = $this->getDescription();		
 		$this->viewArgs['lang'] = $this->lang->getCode();
 		
-		\Videna\Core\View::render($this->view, $this->viewArgs);
+		\Videna\Core\View::render($this->viewArgs);
 	
 	}
 
@@ -94,14 +92,14 @@ class StaticPage extends \Videna\Core\Controller {
 	 */
 	protected function getTitle() {
 		
-		if ( $this->router['action'] == 'error' ) {
-			$title = 'title response ' . $this->router['response'];
+		if (Router::$action == 'error' ) {
+			$title = 'title response ' . Router::$response;
 			return isset($this->lang->langArray[$title]) ? $this->lang->langArray[$title] : 'Unknown';
 		}
 
-		$title = 'title /' . $this->view;	
+		$title = 'title ' . Router::$view;	
 		if ( !isset($this->lang->langArray[$title]) ) {
-			$title = 'title /' .$this->config['default controller']. '/' . $this->config['default view'];
+			$title = 'title ' . Config::get('default controller'). '/' . Config::get('default view');
 			return isset($this->lang->langArray[$title]) ? $this->lang->langArray[$title] : '';
 		}
 
@@ -115,14 +113,14 @@ class StaticPage extends \Videna\Core\Controller {
 	 */ 
 	protected function getDescription() {
 
-		if ( $this->router['action'] == 'error' ) {
-			$description = 'description response ' . $this->router['response'];
+		if ( Router::$action == 'error' ) {
+			$description = 'description response ' . Router::$response;
 			return isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : 'Unknown error is occurred.';
 		}
 		
-		$description = 'description /' . $this->view;	
+		$description = 'description ' . Router::$view;	
 		if ( !isset($this->lang->langArray[$description]) ) {
-			$description = 'description /' .$this->config['default controller']. '/' . $this->config['default view'];
+			$description = 'description ' . Config::get('default controller') . '/' . Config::get('default view');
 			return isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : '';
 		}	
 

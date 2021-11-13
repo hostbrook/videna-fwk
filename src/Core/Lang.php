@@ -22,7 +22,7 @@ class Lang {
 	}
 
 	
-	public function __construct($config, $router, $lang) {
+	public function __construct($lang) {
 
 		/*-------------------------------------------------------
 			1. Determine language
@@ -35,26 +35,26 @@ class Lang {
 		} 
 		else {
 
-			$this->setCode( $config['default language'] );
+			$this->setCode( Config::get('default language') );
 
 			// [1] (Lowest) priority: browser language (if applicable):
 			if ( isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ) {
 				$lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-				if ( in_array($lang, $config['supported languages']) ) $this->setCode($lang);
+				if ( in_array($lang, Config::get('supported languages')) ) $this->setCode($lang);
 			}
 			
 			// [2] (Medium) priority: language from current user coockies (if exists):
 			if ( isset($_COOKIE['lang']) ) {
 				$lang = $_COOKIE['lang'];
-				if ( in_array($lang, $config['supported languages']) ) $this->setCode($lang);
+				if ( in_array($lang, Config::get('supported languages')) ) $this->setCode($lang);
 			}
 
 		}
 		
 		// [3] (High) priority: language forced by user (if exists):
-		if ( isset($router['lang']) ) {
-			$lang = $router['lang']; 
-			if ( in_array($lang, $config['supported languages']) ) $this->setCode($lang);
+		if ( isset(Router::$lang) ) {
+			$lang = Router::$lang; 
+			if ( in_array($lang, Config::get('supported languages')) ) $this->setCode($lang);
 		}
 		
 		
@@ -63,11 +63,11 @@ class Lang {
 		-------------------------------------------------------*/
 		
 		// Connect default language file
-		$lang_path =  'App/lang/'. $config['default language'] . '.php';
+		$lang_path =  'App/lang/'. Config::get('default language') . '.php';
 		if ( is_file($lang_path) )  $this->langArray = include_once $lang_path;
 		
 		// Connect new language file if required
-		if ( $this->getCode() != $config['default language'] ) {
+		if ( $this->getCode() != Config::get('default language') ) {
 			$lang_path = 'App/lang/'. $this->getCode() . '.php'; 
 			if ( is_file($lang_path) )  {
 				$new = include_once $lang_path;

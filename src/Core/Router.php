@@ -1,26 +1,33 @@
 <?php
 // Videna Framework
 // File: /Videna/Core/Router.php
-// Desc: Parent router class
+// Desc: Parcing request to get Controller, Action and all parameters
 
 namespace Videna\Core;
 
-class Router {
+ class Router {
 
 	
-	protected $params;
-	protected $config;
+	public static $lang;
+	public static $controller;
+	public static $action;
+	public static $view;
+	public static $params = [];
+	public static $response;
+	public static $argv = [];
+	
 
-	public function __construct($config) {
+	/**
+	 * Initialization of the router's variables.
+	 * @return void
+	 */ 
+	public static function init() {
 
-		$this->config = $config;
-
-		$this->params = [
-			'controller' => $config['default controller'],
-			'action' =>  $config['default action'],
-			'view' =>  $config['default controller'],
-			'response' => 200
-		];
+		self::$controller = Config::get('default controller');
+		self::$action = Config::get('default action');
+		self::$view = Config::get('default controller');
+		self::$lang = Config::get('default language');
+		self::$response = 200;
 
 		define('STRICT', true);
 		define('NOT_STRICT', false);
@@ -30,11 +37,10 @@ class Router {
 
 	/**
 	 * Parsing the requested URI.
-	 * Use custom router to extend and change the logic.
-	 * 
-	 * @return array $this->params Array of URI parameters
+	 * @return void
 	 */ 
-	public function parse() {
+	public static function parse() {
+
 		
 		// Check SEF URL ( $_GET['url'] )
 
@@ -42,37 +48,40 @@ class Router {
 
 			$url = rtrim($_GET['url'], '/');
 			$url = strtolower($url);
-			$url = str_replace( isset($this->config['url extensions']) ? $this->config['url suffixes'] : '', '', $url );
-
+			$url = str_replace( Config::get('url suffixes') !== null ? Config::get('url suffixes') : '', '', $url );
+			
 			if ( strpos($url, '.') ) {
 				header("HTTP/1.0 404 Not Found");
 				exit;
 			}
-
-			if ( preg_match("/[^a-z0-9\/\-_]+/", $url) or $this->injectionExists($url, STRICT) ) {
 			
-				$this->params[ 'action' ] =  $this->config['error action'];
-				$this->params[ 'response' ] = 400;
+			if ( preg_match("/[^a-z0-9\/\-_]+/", $url) or self::injectionExists($url, STRICT) ) {
+			
+				self::$action =  Config::get('error action');
+				self::$response = 400;
 	
 				Log::add([
-					'Injection Warning' => 'Checking GET[\'url\'] in router',
-					'Requested URI' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+					'Injection Warning: Checking GET[\'url\'] in router',
+					'Requested URI: ' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
 				]);
+
+				return;
 	
 			}
 
-			$url_arr = explode("/", $url);
 
+
+			$url_arr = explode("/", $url);
 
 			// Check if the first parameter is Lang
 
 			if ( strlen($url_arr[0]) == 2 ) {
-				$this->params['lang'] = $url_arr[0];
+				self::$lang = $url_arr[0];
 				unset($url_arr[0]);
 			}
 
 			if ( isset($_GET['lang']) and strlen($_GET['lang']) == 2 ) {
-				$this->params['lang'] = $_GET['lang'];
+				self::$lang = $_GET['lang'];
 			}
 
 
@@ -85,14 +94,14 @@ class Router {
 	
 				if ( class_exists('\\App\\Controllers\\'.$controller) ) {
 
-					$this->params[ 'controller' ] = $controller;
-					$this->params[ 'view' ] = $controller;
+					self::$controller = $controller;
+					self::$view = $controller;
+
 					unset($url_arr[$first_key]);
 
 				}
 
-			}
-
+			}			
 
 			// if parameters still exist, check if it is a SubController
 
@@ -103,34 +112,31 @@ class Router {
 				$controller = ucwords( $url_arr[$first_key], "_-");
 				$controller = str_replace( ['_', '-'], '', $controller );
 
-				if ( class_exists('\\App\\Controllers\\' . $this->params[ 'controller' ] . '\\' . $controller) ) {
+				if ( class_exists('\\App\\Controllers\\' . self::$controller . '\\' . $controller) ) {
 
-					$this->params[ 'controller' ] .= '\\' . $controller;
-					$this->params[ 'view' ] .= '/' . $url_arr[$first_key];
+					self::$controller .= '\\' . $controller;
+					self::$view .= '/' . $url_arr[$first_key];
+
 					unset($url_arr[$first_key]);
 
 				} else break;
 
 			}
-
 			
-			// If action already set to Error - stop script and out:
-			if ( $this->params[ 'action' ] == $this->config['error action'] )	return $this->params;
-
 
 			// if parameters still exist, check if the first is an Action at the existing controller
 
 			if ( !empty($url_arr) ) {
 
 				$first_key = key($url_arr);
-				$controller =  '\\App\\Controllers\\' . $this->params[ 'controller' ];
-				$controller_object = new $controller( [], [] );
+				$controller =  '\\App\\Controllers\\' . self::$controller;
+				$controller_object = new $controller();
 
 				$action = ucwords( $url_arr[$first_key], "_-" );
 				$action = str_replace( ['_', '-'], '', $action );
 				
 				if ( method_exists($controller_object, 'action'.$action) ) {
-					$this->params[ 'action' ] = $action;
+					self::$action = $action;
 					unset($url_arr[$first_key]);
 				}
 
@@ -142,36 +148,42 @@ class Router {
 			if ( !empty($url_arr) ) {
 				$i = 1;
 				foreach ($url_arr as $param) {
-					$this->params['params'][ $i ] = $param;
+					self::$params[ $i ] = $param;
+					self::$view .= '/' . $param;
 					$i++;
 				}
-			}
-
-		}
+			} else self::$view .= '/'. Config::get('default view');
+			
+		} else self::$view .= '/'. Config::get('default view');
 
 
 		// Check other GET parameters (after "?")
 		
 		if ( !empty($_GET) ) {
 
+			// set $argv[0] = false - flag for cron job via HTTP
+			self::$argv[] = false;
+
 			foreach ( $_GET as $key=>$value ) {
 
 				if ($key=='url') continue;
 
-				if ( $this->injectionExists($key, STRICT) or $this->injectionExists($value, NOT_STRICT) ) {
+				if ( self::injectionExists($key, STRICT) or self::injectionExists($value, NOT_STRICT) ) {
 
-					$this->params[ 'action' ] =  $this->config['error action'];
-					$this->params[ 'response' ] = 400;
+					self::$action =  Config::get('error action');
+					self::$response = 400;
 
 					Log::add([ 
-						'Injection Warning' => 'Checking GET[] parameters in router',
-						'Requested URI' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+						'Injection Warning: Checking GET[] parameters in router',
+						'Requested URI: ' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
 					]);
-					return $this->params;
+					
+					return;
 
 				}
 
-				$this->params[ $key ] = $value;
+				self::$params[ $key ] = $value;
+				self::$argv[] = $value;
 			}
 
 		}
@@ -183,28 +195,25 @@ class Router {
 
 			foreach ( $_POST as $key=>$value ) {
 
-				if (  $this->injectionExists($key, STRICT) or $this->injectionExists($value, NOT_STRICT) ) {
+				if ( self::injectionExists($key, STRICT) or self::injectionExists($value, NOT_STRICT) ) {
 
-					$this->params[ 'action' ] =  $this->config['error action'];
-					$this->params[ 'response' ] = 403;
+					self::$action =  Config::get('error action');
+					self::$response = 403;
 
 					Log::add([ 
-						'Injection Warning' => 'Checking POST[] parameters in router',
-						'Requested URI' => htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
+						'Injection Warning: Checking POST[] parameters in router',
+						'Requested URI: ' . htmlspecialchars( URL_ABS . $_SERVER['REQUEST_URI'] )
 					]);
 
-					return $this->params;
+					return;
 
 				}
 
-				$this->params[ $key ] = $value;
+				self::$params[ $key ] = $value;
 			}
 
 		}
 
-
-		// Return result array with parameters in the request:
-		return $this->params;
 
 	}
 
@@ -216,7 +225,7 @@ class Router {
 	 * @param boolean $strict Set 'true' if needs more strict check
 	 * @return boolean Returns 'true' if parameter contains incorrect symbols
 	 */ 
-	protected function injectionExists($param, $strict = true) {
+	protected static function injectionExists($param, $strict = true) {
 		
 		// strip_tags() - Remove HTML and PHP tags from a string
 		$str = strip_tags($param);

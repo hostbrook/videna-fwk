@@ -5,6 +5,9 @@
 
 namespace Videna\Controllers;
 
+use \Videna\Core\Router;
+use \Videna\Core\Config;
+
 /**
  * Class to maintain Ajax requests  
  */
@@ -12,7 +15,6 @@ namespace Videna\Controllers;
 class AjaxHandler extends \Videna\Core\Controller {
 
 	protected $viewArgs;
-	protected $view = false;
 
 
 	/**
@@ -23,8 +25,8 @@ class AjaxHandler extends \Videna\Core\Controller {
 		$this->viewArgs['ajax']['response'] = 404;
 		$this->viewArgs['ajax']['status'] = $this->lang->langArray['title response 404'];
 
-		$this->viewArgs['ajax']['text'] = 'Action/Method not found in class \''.$this->router['controller'].'\'';
-		$this->viewArgs['ajax']['html'] = '<p>Action/Method not found in class \''.$this->router['controller'].'\'</p>';
+		$this->viewArgs['ajax']['text'] = 'Action/Method not found in class \'' . Router::$controller .'\'';
+		$this->viewArgs['ajax']['html'] = '<p>Action/Method not found in class \''. Router::$controller .'\'</p>';
 
 	}
 
@@ -38,10 +40,10 @@ class AjaxHandler extends \Videna\Core\Controller {
 	 */
 	public function actionError(){
 
-		$this->viewArgs['ajax']['response'] = $this->router['response'];
-		$this->viewArgs['ajax']['status'] = $this->lang->langArray['title response '.$this->router['response']];
+		$this->viewArgs['ajax']['response'] = Router::$response;
+		$this->viewArgs['ajax']['status'] = $this->lang->langArray['title response ' . Router::$response];
 
-		$description = 'description response '.$this->router['response'];
+		$description = 'description response ' . Router::$response;
 		$this->viewArgs['ajax']['text'] = isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : 'Unknown error is occurred.';
 		$this->viewArgs['ajax']['html'] = '<p>'.isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : 'Unknown error is occurred.'.'</p>';
 
@@ -52,13 +54,15 @@ class AjaxHandler extends \Videna\Core\Controller {
 	 */
 	protected function before() {
 
+		Router::$view = false;
+
 		if (!(isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
 			http_response_code(403);
 			die("Access denied.");
 		}
 
-		$this->viewArgs['ajax']['response'] = $this->router['response'];
-		$this->viewArgs['ajax']['status'] = $this->lang->langArray['title response '.$this->router['response']];
+		$this->viewArgs['ajax']['response'] = Router::$response;
+		$this->viewArgs['ajax']['status'] = $this->lang->langArray['title response ' . Router::$response];
 
 	}
 
@@ -67,16 +71,14 @@ class AjaxHandler extends \Videna\Core\Controller {
 	 */
 	protected function after() {
 
-		if ( $this->view ) {
+		if ( Router::$view ) {
 
-			//$this->viewArgs['config'] = $this->config;
-			//$this->viewArgs['router'] = $this->router;
 			$this->viewArgs['_'] = $this->lang->langArray;			
 			$this->viewArgs['lang'] = $this->lang->getCode();
 
 		}
 
-		\Videna\Core\View::jsonRender($this->view, $this->viewArgs);
+		\Videna\Core\View::jsonRender($this->viewArgs);
 	
 	}
 
