@@ -5,14 +5,14 @@
 
 namespace Videna\Core;
 
- class Router {
+class Router {
 
+	use DataArray;
 	
 	public static $lang;
 	public static $controller;
 	public static $action;
 	public static $view;
-	public static $params = [];
 	public static $response;
 	public static $argv = [];
 	
@@ -143,12 +143,12 @@ namespace Videna\Core;
 			}
 
 
-			// if parameters still exist - the rest of them put in the array $params
+			// if parameters still exist - the rest of them put in the DataArray
 
 			if ( !empty($url_arr) ) {
 				$i = 1;
 				foreach ($url_arr as $param) {
-					self::$params[ $i ] = $param;
+					self::set([ $i => $param ]);
 					self::$view .= '/' . $param;
 					$i++;
 				}
@@ -182,7 +182,7 @@ namespace Videna\Core;
 
 				}
 
-				self::$params[ $key ] = $value;
+				self::set([ $key => $value ]);
 				self::$argv[] = $value;
 			}
 
@@ -209,7 +209,7 @@ namespace Videna\Core;
 
 				}
 
-				self::$params[ $key ] = $value;
+				self::set([ $key => $value ]);
 			}
 
 		}

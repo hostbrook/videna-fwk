@@ -30,7 +30,9 @@ abstract class Log {
       }
      
       http_response_code(500);
-      die( $die );
+
+      if (APP_DEBUG) die( $die );
+      die ( 'A fatal error has occurred.' );
       
     }
   }

@@ -3,10 +3,11 @@
 // File: /Videna/Core/Mail.php
 // Desc: Pre-cooked class to send emails via PHPMailer
 
-// Use: 
+// How to use: 
 //   use \Videna\Core\Mail;
 //   ...
-//   $mail = Mail::$phpmailer;
+//   $mail = new Mail();
+//   $mail->send();
 
 namespace Videna\Core;
 
@@ -14,69 +15,42 @@ use \PHPMailer\PHPMailer\PHPMailer;
 use \PHPMailer\PHPMailer\Exception;
 
 
-abstract class Mail {
+class Mail extends PHPMailer {
   
-  public $phpmailer;
+  //public $phpmailer;
   public $header;
   public $footer;
 
-  public function __construct(){
+  public function __construct() {
+
+    parent::__construct();
 
     // Connect app config file
     $file_path =  'App/configs/mail.config.php';
     if ( is_file($file_path) ) {
-      include_once $file_path;
+      $mailConfig = include_once $file_path;
     }
-    else Log::add( ["FATAL ERROR" => "Mail config file '$file_path' not found"], "FATAL ERROR: Mail config file not found.");
+    else Log::add( ["FATAL ERROR: Mail config file '$file_path' not found"], "FATAL ERROR: Mail config file not found.");
     
+    // Add default header and footer templates
     $file_path =  'App/Views/mail/header.html';
-    self::$header = is_file($file_path) ? file_get_contents($file_path) : '';
+    $this->header = is_file($file_path) ? file_get_contents($file_path) : '';
     $file_path =  'App/Views/mail/footer.html';
-    self::$footer = is_file($file_path) ? file_get_contents($file_path) : '';
+    $this->footer = is_file($file_path) ? file_get_contents($file_path) : '';
 
-    self::$phpmailer = new PHPMailer(true);
+    // Create object for PHPMailer
+    //$this->phpmailer = new PHPMailer(true);
 
-    self::$phpmailer->isSMTP();
+    // Set generic settings
+    $this->isSMTP();
+    $this->isHTML(true);
+    $this->CharSet = 'UTF-8';
+    $this->Encoding = 'base64';
 
-    //Enable SMTP debugging
-    // 0 = off (for production use)
-    // 1 = client messages
-    // 2 = client and server messages
-    if ( defined('SMTP_DEBUG') )self::$phpmailer->SMTPDebug = SMTP_DEBUG;
-    //Ask for HTML-friendly debug output
-    //self::$phpmailer->Debugoutput = 'html';
-    
-    // DKIM settings (if applicaible):
-    if ( defined('DKIM_DOMAIN') ) self::$phpmailer->DKIM_domain = DKIM_DOMAIN;
-    if ( defined('DKIM_SELECTOR') ) self::$phpmailer->DKIM_selector = DKIM_SELECTOR;
-    if ( defined('DKIM_DOMAIN') ) self::$phpmailer->DKIM_identity = EMAIL_FROM;
-    if ( defined('DKIM_PRIVATE_KEY') ) self::$phpmailer->DKIM_private_string = DKIM_PRIVATE_KEY;
-    // Path to the file with private key:
-    //self::$phpmailer->DKIM_private = ''; // 'path/to/your/private.key';
-    //self::$phpmailer->DKIM_passphrase = ''; //leave blank if no Passphrase
-    
-    //Set the hostname of the mail server
-    if ( defined('SMTP_HOST') ) self::$phpmailer->Host = SMTP_HOST;
-    //Set the SMTP port number - likely to be 25, 465 or 587
-    if ( defined('SMTP_PORT') ) self::$phpmailer->Port = SMTP_PORT;
-    //Whether to use SMTP authentication
-    if ( defined('SMTP_AUTH') ) self::$phpmailer->SMTPAuth = SMTP_AUTH;
-    //Username to use for SMTP authentication
-    if ( defined('SMTP_USERNAME') ) self::$phpmailer->Username = SMTP_USERNAME;
-    //Password to use for SMTP authentication
-    if ( defined('SMTP_PASSWORD') ) self::$phpmailer->Password = SMTP_PASSWORD;
-    if ( defined('SMTP_SECURE') ) self::$phpmailer->SMTPSecure = SMTP_SECURE;
-    
-    self::$phpmailer->isHTML(true);
-    self::$phpmailer->CharSet = 'UTF-8';
-    self::$phpmailer->Encoding = 'base64';
-    
-    //Set who the message is to be sent from
-    if ( defined('EMAIL_FROM') and defined('NAME_FROM') ) self::$phpmailer->setFrom(EMAIL_FROM, NAME_FROM);
-    //Set the subject line
-    if ( defined('MAIL_SUBJECT') ) self::$phpmailer->Subject = MAIL_SUBJECT;
+    // Set properties from mail config
+    foreach ($mailConfig as $property) $this->$property = $property;
+    if ( defined('DEF_EMAIL_FROM') and defined('DEF_NAME_FROM') ) $this->setFrom(DEF_EMAIL_FROM, DEF_NAME_FROM);
 
-  } // END __construct
+  }
 
-
-} // END mail.class
+}

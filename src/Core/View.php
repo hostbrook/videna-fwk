@@ -8,36 +8,40 @@ namespace Videna\Core;
 
 class View {
 
+	use DataArray;
 
-	public static function render($viewArgs = []) {
 
-		extract($viewArgs, EXTR_SKIP);
+	public static function render() {
+
+		extract(self::getAll(), EXTR_SKIP);
 
 		require_once PATH_VIEWS . Router::$view  .'.php';
 
 	}
 
 
-	public static function jsonRender( $viewArgs = [] ) {
+	public static function jsonRender() {
 
-		if ( empty($viewArgs) ) {
-			$viewArgs['ajax']['response'] = -1;
-			$viewArgs['ajax']['status'] = 'No data to show';
+		if ( empty( self::getAll() ) ) {
+			self::set([
+				'response' => -1,
+			  'status' => 'No data to show'
+			]);
 		}
 
 		if ( Router::$view ) {
 
-			extract($viewArgs, EXTR_SKIP);
+			extract(self::getAll(), EXTR_SKIP);
 	
 			ob_start();
 			
 			include_once PATH_VIEWS . Router::$view  .'.php';
 			
-			$viewArgs['ajax']['html'] = ob_get_clean();
+			self::set([ 'html' => ob_get_clean() ]);
 
 		}
 
-		die( json_encode($viewArgs['ajax']) );
+		die( json_encode(self::getAll()) );
 
 	}
 

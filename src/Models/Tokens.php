@@ -45,7 +45,7 @@ class Tokens extends \Videna\Core\Database {
  	 *
 	 * @return void
 	 */
-	public static function updatePublicKey($publicKey, $userId, $privateKey, $expires=0) {
+	public static function updatePublicKey($publicKey, $userId, $privateKey, $expires=null) {
 				
 		$db = static::getDB();
 

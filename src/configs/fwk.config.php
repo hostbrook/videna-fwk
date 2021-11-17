@@ -3,13 +3,6 @@
 // File: /Videna/fwk.config.php
 // Desc: Framework main config file
 
-// PHP config settings:
-ini_set('error_reporting', E_ALL);
-ini_set('session.cookie_lifetime', 0);
-ini_set('session.use_strict_mode', 1);
-ini_set('display_errors', 1);
-
-date_default_timezone_set('America/Edmonton'); 
 
 // Project paths, used in PHP scripts to include files
 define('PATH_VIEWS', 'App/Views/');

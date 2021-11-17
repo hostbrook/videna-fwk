@@ -7,7 +7,7 @@ namespace Videna\Core;
 
 class Config {
 
-	private static $config = [];
+	use DataArray;
 
 	public static function init() {
 
@@ -20,21 +20,8 @@ class Config {
 
 		// Connect app config file if exists
 		$path =  'App/configs/app.config.php';
-		if ( is_file($path) ) self::$config = array_merge($config, include_once $path);
+		if ( is_file($path) ) self::setAll( array_merge($config, include_once $path) );
 		
-	}
-
-
-	public static function get($property) {
-
-		return self::$config[ $property ];
-
-	}
-	
-	public static function getAll() {
-
-		return self::$config;
-
 	}
 	
 }

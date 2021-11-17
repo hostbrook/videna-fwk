@@ -7,13 +7,13 @@
 
 namespace Videna\Core;
 
-// 1. Connect the framework configuration files
+// 1. Connect the framework configuration file
 $path = PATH_FWK . 'configs/fwk.config.php';
 is_file($path) ? require_once $path : die('FATAL ERROR: Can\'t find framework config file');
 
-// 2. Connect the server configuration files
-$path = 'App/configs/srv.config.php'; 
-is_file($path) ? require_once $path : die('FATAL ERROR: Can\'t find server config file');
+// 2. Connect the application environment file
+$path = 'App/configs/env.php'; 
+is_file($path) ? require_once $path : die('FATAL ERROR: Can\'t find application environment config file');
 
 // 3. Composer AutoLoad
 require_once 'vendor/autoload.php';

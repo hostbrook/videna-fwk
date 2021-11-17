@@ -7,26 +7,10 @@ namespace Videna\Core;
 
 abstract class Controller {
 
-	protected $lang;   // <- Object
-	protected $user;   // <- Array
-
 
 	public function __call($name, $args) {
 
-		// Determine User's account type:
-		$this->user = User::detect();
-
-		// Check if user have preffered language:
-		if ( $this->user['account'] > USR_UNREG and isset($this->user['lang'])) {
-			$userLang = $this->user['lang'];
-		}
-		else $userLang = false;
-
-		// Set language:
-		$this->lang = new Lang($userLang);
-
-		// Filter "before" - before action starts
-		// At this filter you maybe want to change action.
+		// Filter "before" - executes before action starts
 		$this->before();
 
 		// Set requested action:
@@ -34,13 +18,14 @@ abstract class Controller {
 
 		call_user_func_array([$this, $method], $args);
 
-		// Filter "after" - after action is completed
+		// Filter "after" - executes after action is completed
 		$this->after();
 
 		// Finally send response to client:
 		http_response_code(Router::$response);
 		
 	}
+	
 
 	abstract protected function actionIndex();
 
