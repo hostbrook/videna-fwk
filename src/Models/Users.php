@@ -1,96 +1,104 @@
 <?php
-// Videna Framework
-// File: /Videna/Models/Users.php
-// Desc: Model to work with table `users`
+
+/**
+ * Model to work with table `users`
+ * Videna MVC Micro-Framework
+ * 
+ * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * @author HostBrook <support@hostbrook.com>
+ */
 
 namespace Videna\Models;
 
 use PDO;
 
 
-class Users extends \Videna\Core\Database {
+class Users extends \Videna\Helpers\Database
+{
 
-	/**
-	 * Get all the users as an associative array
-	 * @return array with all users data
-	 */
-	public static function getAll() {
-				
-		$db = static::getDB();
+    /**
+     * Get all the users as an associative array
+     * @return array with all users data
+     */
+    public static function getAll()
+    {
 
-		$stmt = $db->query('SELECT id, name, email FROM users ORDER BY id');
+        $db = static::getDB();
 
-		return $stmt->fetchAll();
+        $stmt = $db->query('SELECT id, name, email FROM users ORDER BY id');
 
-	}
+        return $stmt->fetchAll();
+    }
 
 
-	/**
-	 * Find user by one or more criterias
-	 * @param $arguments is array, for example: [ 'email' => 'john@email.com' ]
-	 * @return array with user data if user exists
-	 * @return false if user DOES NOT exist
-	 */
-	public static function getUser($arguments) {
-				
-		$db = static::getDB();
+    /**
+     * Find user by one or more criterias
+     * @param $arguments is array, for example: [ 'email' => 'john@email.com' ]
+     * @return array with user data if user exists
+     * @return false if user DOES NOT exist
+     */
+    public static function getUser($arguments)
+    {
 
-		// Prepare SQL query:
-    $first = true;
-    foreach ($arguments as $key => $value) {
-      if ($first) {
-        $first = false;
+        $db = static::getDB();
+
+        // Prepare SQL query:
+        $first = true;
         $query = '';
-      } else {
-        $query .= ', ';
-      }
-      $query .=  "$key = :$key";
-		}
+        foreach ($arguments as $key => $value) {
+            if ($first) {
+                $first = false;
+                $query = '';
+            } else {
+                $query .= ', ';
+            }
+            $query .=  "$key = :$key";
+        }
 
-		$sql = "SELECT * FROM users WHERE $query LIMIT 1";
-		$stmt = $db->prepare($sql);
-		$stmt->execute($arguments);
-		
-		return $stmt->fetch();
+        $sql = "SELECT * FROM users WHERE $query LIMIT 1";
+        $stmt = $db->prepare($sql);
+        $stmt->execute($arguments);
 
-	}
+        return $stmt->fetch();
+    }
 
-	
-	/**
-	 * Add new user in DB
-	 * @param $arguments is array of user data
-	 * @return int User ID (`user_id`)
-	 */
-  public static function addUser($arguments) {
-    
-    if ( !isset($arguments['name']) ) return false;
-    if ( !isset($arguments['email']) ) return false;
-    if ( !isset($arguments['account']) ) $arguments['account'] = USR_REG;
-		
-		$db = static::getDB();
 
-		// Prepare SQL query:
-    $first = true;
-    foreach ($arguments as $key => $value) {
-      if ($first) {
-        $first = false;
+    /**
+     * Add new user in DB
+     * @param $arguments is array of user data
+     * @return int User ID (`user_id`)
+     */
+    public static function addUser($arguments)
+    {
+
+        if (!isset($arguments['name'])) return false;
+        if (!isset($arguments['email'])) return false;
+        if (!isset($arguments['account'])) $arguments['account'] = USR_REG;
+
+        $db = static::getDB();
+
+        // Prepare SQL query:
+        $first = true;
         $sql_keys = '';
         $sql_values = '';
-      } else {
-        $sql_keys .= ', ';
-        $sql_values .= ', ';
-      }
-      $sql_keys .=  $key;
-      $sql_values .=  ":$key";
-		}
 
-		$sql = "INSERT INTO users ($sql_keys) VALUES ($sql_values)";
-		$stmt = $db->prepare($sql);
-		$stmt->execute($arguments);
-    
-    return $db->lastInsertId();
-    
-  }
+        foreach ($arguments as $key => $value) {
+            if ($first) {
+                $first = false;
+                $sql_keys = '';
+                $sql_values = '';
+            } else {
+                $sql_keys .= ', ';
+                $sql_values .= ', ';
+            }
+            $sql_keys .=  $key;
+            $sql_values .=  ":$key";
+        }
 
+        $sql = "INSERT INTO users ($sql_keys) VALUES ($sql_values)";
+        $stmt = $db->prepare($sql);
+        $stmt->execute($arguments);
 
-} // END class User
+        return $db->lastInsertId();
+    }
+}

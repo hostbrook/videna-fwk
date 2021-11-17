@@ -1,40 +1,46 @@
 <?php
-// Videna Framework
-// File: /Videna/Core/Controller.php
-// Desc: Base controller class
+
+/**
+ * Base Controller class
+ * Videna MVC Micro-Framework
+ * 
+ * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * @author HostBrook <support@hostbrook.com>
+ */
 
 namespace Videna\Core;
 
-abstract class Controller {
+
+abstract class Controller
+{
 
 
-	public function __call($name, $args) {
+    public function __call($name, $args)
+    {
 
-		// Filter "before" - executes before action starts
-		$this->before();
+        // Filter "before" - executes before action starts
+        $this->before();
 
-		// Set requested action:
-		$method = 'action' . Router::$action;
+        // Set requested action:
+        $method = 'action' . Router::$action;
 
-		call_user_func_array([$this, $method], $args);
+        call_user_func_array([$this, $method], $args);
 
-		// Filter "after" - executes after action is completed
-		$this->after();
+        // Filter "after" - executes after action is completed
+        $this->after();
 
-		// Finally send response to client:
-		http_response_code(Router::$response);
-		
-	}
-	
+        // Finally send response to client:
+        http_response_code(Router::$response);
+    }
 
-	abstract protected function actionIndex();
 
-	abstract protected function actionError();
+    abstract protected function actionIndex();
 
-	// Filter "before" - before action starts
-	abstract protected function before();
+    abstract protected function actionError();
 
-	// Filter "after" - after action is completed
-	abstract protected function after();
+    // Filter "before" - before action starts
+    abstract protected function before();
 
-} // END class Controller
+    // Filter "after" - after action is completed
+    abstract protected function after();
+}

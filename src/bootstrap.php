@@ -1,8 +1,11 @@
 <?php
+
 /**
- * Videna Framework
- * File: /Videna/bootstrap.php
- * Desc: Application bootstrap
+ * Application bootstrap
+ * Videna MVC Micro-Framework
+ * 
+ * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * @author HostBrook <support@hostbrook.com>
  */
 
 namespace Videna\Core;
@@ -12,7 +15,7 @@ $path = PATH_FWK . 'configs/fwk.config.php';
 is_file($path) ? require_once $path : die('FATAL ERROR: Can\'t find framework config file');
 
 // 2. Connect the application environment file
-$path = 'App/configs/env.php'; 
+$path = 'App/configs/env.php';
 is_file($path) ? require_once $path : die('FATAL ERROR: Can\'t find application environment config file');
 
 // 3. Composer AutoLoad
@@ -24,6 +27,6 @@ set_exception_handler('Videna\Core\Error::exceptionHandler');
 
 // 5. Execute Application
 $app = new App();
-$app->execute( isset($argv) ? $argv : false );
+$app->execute(isset($argv) ? $argv : false);
 
 // END Bootstrap

@@ -1,34 +1,34 @@
 <?php
-// Videna Framework
-// File: /Videna/configs/app.def.config.php
-// Desc: Default Application's config file
 
 /**
- * Default Application constants
+ * Default Application's config file
+ * Videna MVC Micro-Framework
+ * 
+ * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * @author HostBrook <support@hostbrook.com>
  */
 
-// URLs, used to include images, scripts, etc.
-define('URL_ABS', HTP_PROTOCOL.'://'.HOST_NAME);
-define('URL_REL', '//'.HOST_NAME);
+
+// Default Application constants
+
+define('URL_ABS', HTP_PROTOCOL . '://' . HOST_NAME);
+define('URL_REL', '//' . HOST_NAME);
 
 
 return array(
 
-/**
- * Default Application settings.
- */
+    // Default Application settings
 
-'default controller' => 'Page',
-'default action' => 'Index',
-'default view' => 'index',
+    'default controller' => 'Page',
+    'default action' => 'Index',
+    'default view' => 'index',
 
-'error action' => 'error',
-'error view' => 'error',
+    'error action' => 'error',
+    'error view' => 'error',
 
-'url suffixes' => ['.htm', '.html'],
+    'url suffixes' => ['.htm', '.html'],
 
-'default language' => 'en',
-'supported languages' => [ 'en' ],
+    'default language' => 'en',
+    'supported languages' => ['en'],
 
-
-); // END app.config
+);
