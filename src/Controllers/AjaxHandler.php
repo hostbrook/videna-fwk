@@ -11,6 +11,7 @@
 namespace Videna\Controllers;
 
 use \Videna\Core\Router;
+use \Videna\Core\Config;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
 use \Videna\Core\User;

@@ -111,6 +111,18 @@ class StaticPage extends \Videna\Core\Controller
 
 
     /**
+     * Redirect to specific url
+     * @param string $url
+     * @return void
+     */
+    protected function redirect($url)
+    {
+        header("HTTP/1.1 302 Found");
+        header("Location: $url");
+    }
+
+
+    /**
      * Get title (for the <title> tag) from language file
      * @param string $meta HTML meta teg type
      * @return void
@@ -119,16 +131,16 @@ class StaticPage extends \Videna\Core\Controller
     {
 
         if (Router::$action == 'error') {
-            $title = $meta . ' response ' . Router::$response;
-            return View::get('_')[$title] !== null ? View::get('_')[$title] : 'Unknown';
+            $key = $meta . ' response ' . Router::$response;
+            return isset(View::get('_')[$key]) ? View::get('_')[$key] : 'Unknown';
         }
 
-        $title = $meta . ' ' . Router::$view;
-        if (View::get('_')[$title] === null) {
-            $title = $meta . ' ' . Config::get('default controller') . '/' . Config::get('default view');
-            return View::get('_')[$title] !== null ? View::get('_')[$title] : '';
+        $key = $meta . ' ' . Router::$view;
+        if (!isset(View::get('_')[$key])) {
+            $key = $meta . ' ' . Config::get('default controller') . '/' . Config::get('default view');
+            return isset(View::get('_')[$key]) ? View::get('_')[$key] : '';
         }
 
-        return View::get('_')[$title];
+        return View::get('_')[$key];
     }
 }

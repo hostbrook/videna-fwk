@@ -10,8 +10,7 @@
 
 namespace Videna\Core;
 
-
-abstract class Log
+class Log
 {
 
     /**
@@ -20,16 +19,20 @@ abstract class Log
      * @param mixed $die The output message if stop script is required
      * @return void
      */
-    public static function add($data = ['Break Point'], $die = FALSE)
+    public static function add($data = 'Break Point', $die = FALSE)
     {
 
         $fp = fopen(PATH_APP_LOG, "a");
 
-        $logLine = date("Y-m-d H:i:s") . ($die ? ' FATAL ERROR' : ' DEBUG/INFO') . "\r\n";
-        foreach ($data as $error_descr) $logLine .= $error_descr . "\r\n";
+        $logLine = '[' . date("Y-m-d H:i:s") . '] ' . ($die ? 'FATAL ERROR' : 'DEBUG/INFO') . "\r\n";
+
+        if (is_array($data)) {
+            foreach ($data as $error_descr) $logLine .= "$error_descr\r\n";
+        } else $logLine .= "$data\r\n";
+
         $logLine .= "\r\n";
 
-        $result = fwrite($fp, $logLine);
+        fwrite($fp, $logLine);
         fclose($fp);
 
         if ($die) {

@@ -13,7 +13,8 @@ namespace Videna\Core;
 use \Videna\Models\Users;
 use \Videna\Models\Tokens;
 
-abstract class User
+
+class User
 {
 
     private static $PublicKey = null;
@@ -167,4 +168,4 @@ abstract class User
     {
         return substr(md5(time() . rand()), 0, TOKEN_LENGTH);
     }
-} // END class User
+}
