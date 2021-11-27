@@ -26,7 +26,7 @@ return array(
     'error action' => 'error',
     'error view' => 'error',
 
-    'url suffixes' => ['.htm', '.html'],
+    'url suffixes' => ['.htm', '.html', '.php'],
 
     'default language' => 'en',
     'supported languages' => ['en'],

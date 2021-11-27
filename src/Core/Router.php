@@ -34,7 +34,7 @@ class Router
         self::$controller = Config::get('default controller');
         self::$action = Config::get('default action');
         self::$view = Config::get('default controller');
-        self::$lang = Config::get('default language');
+        self::$lang = null;
         self::$response = 200;
 
         define('STRICT', true);

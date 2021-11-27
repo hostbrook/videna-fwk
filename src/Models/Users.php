@@ -25,7 +25,7 @@ class Users extends \Videna\Helpers\Database
 
         $db = static::getDB();
 
-        $stmt = $db->query('SELECT id, name, email FROM users ORDER BY id');
+        $stmt = $db->query('SELECT * FROM users ORDER BY id');
 
         return $stmt->fetchAll();
     }
@@ -100,5 +100,34 @@ class Users extends \Videna\Helpers\Database
         $stmt->execute($arguments);
 
         return $db->lastInsertId();
+    }
+
+
+    /**
+     * Delete user(s) from DB by one or more criterias
+     * @param $arguments is array of user data
+     * @return bool 
+     */
+    public static function delete($arguments)
+    {
+        $db = static::getDB();
+
+        // Prepare SQL query:
+        $first = true;
+        $query = '';
+        foreach ($arguments as $key => $value) {
+            if ($first) {
+                $first = false;
+                $query = '';
+            } else {
+                $query .= ' AND ';
+            }
+            $query .=  "$key = :$key";
+        }
+
+        // Delete records that match $arguments criteria
+        $sql = 'DELETE FROM users WHERE ' . $query;
+        $stmt = $db->prepare($sql);
+        $stmt->execute($arguments);
     }
 }

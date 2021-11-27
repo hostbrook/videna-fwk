@@ -62,16 +62,16 @@ class Lang
                 $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
                 if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
             }
+        }
 
-            // [2] (Medium) priority: language from current user coockies (if exists):
-            if (isset($_COOKIE['lang'])) {
-                $lang = $_COOKIE['lang'];
-                if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
-            }
+        // [2] (Medium) priority: language from current user coockies (if exists):
+        if (isset($_COOKIE['lang'])) {
+            $lang = $_COOKIE['lang'];
+            if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
         }
 
         // [3] (High) priority: language forced by user (if exists):
-        if (isset(Router::$lang)) {
+        if (isset(Router::$lang) and Router::$lang != null) {
             $lang = Router::$lang;
             if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
         }
