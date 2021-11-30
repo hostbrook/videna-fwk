@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Parcing request to get Controller, Action and all parameters
+ * Parcing the request to get: Controller, Action and all parameters
  * Videna MVC Micro-Framework
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
@@ -50,19 +50,21 @@ class Router
     {
 
 
-        // Check SEF URL ( $_GET['url'] )
+        // 1. Check SEF URL ( $_GET['url'] )
 
         if (isset($_GET['url'])) {
 
-            $url = rtrim($_GET['url'], '/');
+            // 1.1. Strip whitespace and slash from the end of SEF URL
+            $url = rtrim($_GET['url'], ' /');
             $url = strtolower($url);
-            $url = str_replace(Config::get('url suffixes') !== null ? Config::get('url suffixes') : '', '', $url);
 
-            if (strpos($url, '.')) {
-                header("HTTP/1.0 404 Not Found");
-                exit;
+            // 1.2. Remove permitted url suffixes from the end of SEF URL
+            if (($suffixes = Config::get('url suffixes')) != null) {
+                array_multisort($suffixes, SORT_DESC, SORT_REGULAR);
+                $url = str_replace($suffixes, '', $url);
             }
 
+            // 1.3. Check SEF URL on eligible symbols
             if (preg_match("/[^a-z0-9\/\-_]+/", $url) or self::injectionExists($url, STRICT)) {
 
                 self::$action =  Config::get('error action');
@@ -76,11 +78,10 @@ class Router
                 return;
             }
 
-
-
+            // 1.4. Explode SEF URL on components
             $url_arr = explode("/", $url);
 
-            // Check if the first parameter is Lang
+            // 1.5. Check if the first parameter is Lang
 
             if (strlen($url_arr[0]) == 2) {
                 self::$lang = $url_arr[0];
@@ -92,7 +93,7 @@ class Router
             }
 
 
-            // Get the Main Controller
+            // 1.6. Get the Main Controller
 
             if (!empty($url_arr)) {
 
@@ -108,7 +109,7 @@ class Router
                 }
             }
 
-            // if parameters still exist, check if it is a SubController
+            // 1.7. if parameters still exist, check if they are SubControllers
 
             while (!empty($url_arr)) {
 
@@ -127,7 +128,7 @@ class Router
             }
 
 
-            // if parameters still exist, check if the first is an Action at the existing controller
+            // 1.8. if parameters still exist, check if the first is an Action at the existing controller
 
             if (!empty($url_arr)) {
 
@@ -145,7 +146,7 @@ class Router
             }
 
 
-            // if parameters still exist - the rest of them put in the DataArray
+            // 1.9. if parameters still exist - the rest of them put in the DataArray
 
             if (!empty($url_arr)) {
                 $i = 1;
@@ -158,7 +159,7 @@ class Router
         } else self::$view .= '/' . Config::get('default view');
 
 
-        // Check other GET parameters (after "?")
+        // 2. Check other GET parameters (after "?")
 
         if (!empty($_GET)) {
 
@@ -188,7 +189,7 @@ class Router
         }
 
 
-        // Check POST-parameters
+        // 3. Check POST-parameters
 
         if (!empty($_POST)) {
 

@@ -1,4 +1,9 @@
 # PHP MVC Micro-Framework Videna
 
-Here are source files of the framework core.
-Use this package to build your application based on the Videna Framework.
+Here is a package of the Videna framework core. 
+
+Whenever there is a new release, update your application from the command line in your **project root**:
+```shell
+composer update
+```
+With this command the Videna framework core will be updated.

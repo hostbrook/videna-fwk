@@ -117,15 +117,15 @@ class StaticPage extends \Videna\Core\Controller
 
         if (Router::$action == 'error') {
             $key = $meta . ' response ' . Router::$response;
-            return isset(View::get('_')[$key]) ? View::get('_')[$key] : 'Unknown';
+            return Lang::get($key) != null ? Lang::get($key) : 'Unknown';
         }
 
         $key = $meta . ' ' . Router::$view;
-        if (!isset(View::get('_')[$key])) {
+        if (Lang::get($key) == null) {
             $key = $meta . ' ' . Config::get('default controller') . '/' . Config::get('default view');
-            return isset(View::get('_')[$key]) ? View::get('_')[$key] : '';
+            return Lang::get($key) != null ? Lang::get($key) : '';
         }
 
-        return View::get('_')[$key];
+        return Lang::get($key);
     }
 }
