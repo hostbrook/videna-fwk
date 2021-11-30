@@ -14,66 +14,53 @@ namespace Videna\Core;
 class Lang
 {
 
-    public $langArray;
-    private $code;
+    use DataArray;
 
-
-    /**
-     * Returns locale language code
-     * @param string $code Set locale
-     * @return void 
-     */
-    public function setCode($code)
-    {
-        $this->code = mb_strtolower($code);
-    }
-
-
-    /**
-     * Returns locale language code
-     * @return string Locale language code
-     */
-    public function getCode()
-    {
-        return $this->code;
-    }
+    public static $code;
 
 
     /**
      * Detects the locale language and returns array of words
      * @param string $lang Language from user settings
      */
-    public function __construct($lang)
+    public static function detect()
     {
 
         /*-------------------------------------------------------
 		  1. Detect the locale language
 		-------------------------------------------------------*/
 
-        if ($lang) {
-            // If locale language exists in users settings, set it
-            $this->setCode($lang);
+        // Check if user have preffered language:
+        if (User::get('account') > USR_UNREG and User::get('lang') != null) {
+
+            self::$code = User::get('lang');
         } else {
 
-            $this->setCode(Config::get('default language'));
+            self::$code = mb_strtolower(Config::get('default language'));
 
             // [1] (Lowest) priority: browser language (if applicable):
             if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+
                 $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-                if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
+
+                if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
             }
         }
 
         // [2] (Medium) priority: language from current user coockies (if exists):
         if (isset($_COOKIE['lang'])) {
+
             $lang = $_COOKIE['lang'];
-            if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
+
+            if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
         }
 
         // [3] (High) priority: language forced by user (if exists):
         if (isset(Router::$lang) and Router::$lang != null) {
+
             $lang = Router::$lang;
-            if (in_array($lang, Config::get('supported languages'))) $this->setCode($lang);
+
+            if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
         }
 
 
@@ -83,21 +70,20 @@ class Lang
 
         // Connect default language file
         $lang_path =  'App/lang/' . Config::get('default language') . '.php';
-        if (is_file($lang_path))  $this->langArray = include_once $lang_path;
+        if (is_file($lang_path)) self::setAll(include_once $lang_path);
 
         // Connect new language file if required
-        if ($this->getCode() != Config::get('default language')) {
-            $lang_path = 'App/lang/' . $this->getCode() . '.php';
-            if (is_file($lang_path)) {
-                $new = include_once $lang_path;
-                $this->langArray = array_merge($this->langArray, $new);
-            }
+        if (self::$code != Config::get('default language')) {
+
+            $lang_path = 'App/lang/' . self::$code . '.php';
+
+            if (is_file($lang_path)) self::mergeWith(include_once $lang_path);
         }
 
         /*-------------------------------------------------------
 		  3. Save user's languages
 		-------------------------------------------------------*/
 
-        setcookie('lang', $this->getCode(), 0, '/');
+        setcookie('lang', self::$code, 0, '/');
     }
 }

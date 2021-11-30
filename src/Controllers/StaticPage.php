@@ -24,9 +24,6 @@ use \Videna\Core\Lang;
 class StaticPage extends \Videna\Core\Controller
 {
 
-    protected $user;   // <- Array of user data
-
-
     /**
      * Index action is a default action
      */
@@ -41,6 +38,7 @@ class StaticPage extends \Videna\Core\Controller
      * - injection warning @Router 
      * - Requested Class or Method not found in App class
      * - redirection from action if error needs to be shown
+     * 
      * @param int $errNr Response number
      * @return void
      */
@@ -72,21 +70,6 @@ class StaticPage extends \Videna\Core\Controller
      */
     protected function before()
     {
-
-        // Determine User's account type:
-        $this->user = User::detect();
-
-        // Check if user have preffered language:
-        if ($this->user['account'] > USR_UNREG and isset($this->user['lang'])) {
-            $userLang = $this->user['lang'];
-        } else $userLang = false;
-
-        // Set language:
-        $lang = new Lang($userLang);
-        View::set([
-            '_' => $lang->langArray,
-            'lang' => $lang->getCode()
-        ]);
     }
 
 
@@ -101,9 +84,11 @@ class StaticPage extends \Videna\Core\Controller
         if (!is_file(PATH_VIEWS . Router::$view  . '.php')) $this->actionError(404);
 
         View::set([
-            'user' => $this->user,
+            'user' => User::getAll(),
             'title' => $this->getMeta('title'),
             'description' => $this->getMeta('description'),
+            '_' => Lang::getAll(),
+            'lang' => Lang::$code
         ]);
 
         \Videna\Core\View::render();

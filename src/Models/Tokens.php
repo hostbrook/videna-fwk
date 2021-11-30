@@ -13,7 +13,7 @@ namespace Videna\Models;
 use PDO;
 
 
-class Tokens extends \Videna\Helpers\Database
+class Tokens extends Database
 {
 
 

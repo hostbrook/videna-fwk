@@ -1,4 +1,4 @@
-# PHP MVC Framework Videna
+# PHP MVC Micro-Framework Videna
 
 Here are source files of the framework core.
 Use this package to build your application based on the Videna Framework.

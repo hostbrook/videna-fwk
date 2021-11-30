@@ -11,7 +11,6 @@
 namespace Videna\Controllers;
 
 use \Videna\Core\Router;
-use \Videna\Core\Config;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
 use \Videna\Core\User;
@@ -19,10 +18,6 @@ use \Videna\Core\User;
 
 class AjaxHandler extends \Videna\Core\Controller
 {
-
-
-    protected $user;   // <- Array of user data
-
 
     /**
      * Default action, executes if action was missed in ajax request
@@ -45,12 +40,16 @@ class AjaxHandler extends \Videna\Core\Controller
      * Action for output of error message
      * This methot is triggered if:
      * - injection warning @Router 
+     * - Requested Class or Method not found in App class
      * - redirection from action if error needs to be shown
      * 
+     * @param int $errNr Response number
      * @return void
      */
-    public function actionError()
+    public function actionError($errNr = false)
     {
+
+        if ($errNr) Router::$response = $errNr;
 
         View::set([
             'response' => Router::$response,
@@ -59,10 +58,11 @@ class AjaxHandler extends \Videna\Core\Controller
 
         $description = 'description response ' . Router::$response;
         View::set([
-            'text' => isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : 'Unknown error is occurred.',
-            'html' => '<p>' . isset($this->lang->langArray[$description]) ? $this->lang->langArray[$description] : 'Unknown error is occurred.' . '</p>'
+            'text' => Lang::get($description) != null ? Lang::get($description) : 'Unknown error is occurred.',
+            'html' => '<p>' . Lang::get($description) != null ? Lang::get($description) : 'Unknown error is occurred.' . '</p>'
         ]);
     }
+
 
     /**
      * Filter before the each action
@@ -76,30 +76,15 @@ class AjaxHandler extends \Videna\Core\Controller
             die("Access denied.");
         }
 
-        // Determine User's account type:
-        $this->user = User::detect();
-
-        // Check if user have preffered language:
-        if ($this->user['account'] > USR_UNREG and isset($this->user['lang'])) {
-            $userLang = $this->user['lang'];
-        } else $userLang = false;
-
-
-        // Set language:
-        $lang = new Lang($userLang);
-        View::set([
-            '_' => $lang->langArray,
-            'lang' => $lang->getCode()
-        ]);
-
         // Prepare response:
         View::set([
             'response' => Router::$response,
-            'status' => $lang->langArray['title response ' . Router::$response]
+            'status' => Lang::get('title response ' . Router::$response)
         ]);
 
         Router::$view = false;
     }
+
 
     /**
      * Filter "after" each action
@@ -108,7 +93,13 @@ class AjaxHandler extends \Videna\Core\Controller
     protected function after()
     {
 
-        View::set(['user' => $this->user]);
+        View::set([
+            'user' => User::getAll(),
+            'lang' => Lang::$code
+        ]);
+
+        if (Router::$view) View::set(['_' => Lang::getAll()]);
+
         \Videna\Core\View::jsonRender();
     }
 }

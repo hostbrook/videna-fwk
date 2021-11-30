@@ -13,23 +13,8 @@ namespace Videna\Models;
 use PDO;
 
 
-class Users extends \Videna\Helpers\Database
+class Users extends Database
 {
-
-    /**
-     * Get all the users as an associative array
-     * @return array with all users data
-     */
-    public static function getAll()
-    {
-
-        $db = static::getDB();
-
-        $stmt = $db->query('SELECT * FROM users ORDER BY id');
-
-        return $stmt->fetchAll();
-    }
-
 
     /**
      * Find user by one or more criterias
@@ -60,74 +45,5 @@ class Users extends \Videna\Helpers\Database
         $stmt->execute($arguments);
 
         return $stmt->fetch();
-    }
-
-
-    /**
-     * Add new user in DB
-     * @param $arguments is array of user data
-     * @return int User ID (`user_id`)
-     */
-    public static function addUser($arguments)
-    {
-
-        if (!isset($arguments['name'])) return false;
-        if (!isset($arguments['email'])) return false;
-        if (!isset($arguments['account'])) $arguments['account'] = USR_REG;
-
-        $db = static::getDB();
-
-        // Prepare SQL query:
-        $first = true;
-        $sql_keys = '';
-        $sql_values = '';
-
-        foreach ($arguments as $key => $value) {
-            if ($first) {
-                $first = false;
-                $sql_keys = '';
-                $sql_values = '';
-            } else {
-                $sql_keys .= ', ';
-                $sql_values .= ', ';
-            }
-            $sql_keys .=  $key;
-            $sql_values .=  ":$key";
-        }
-
-        $sql = "INSERT INTO users ($sql_keys) VALUES ($sql_values)";
-        $stmt = $db->prepare($sql);
-        $stmt->execute($arguments);
-
-        return $db->lastInsertId();
-    }
-
-
-    /**
-     * Delete user(s) from DB by one or more criterias
-     * @param $arguments is array of user data
-     * @return bool 
-     */
-    public static function delete($arguments)
-    {
-        $db = static::getDB();
-
-        // Prepare SQL query:
-        $first = true;
-        $query = '';
-        foreach ($arguments as $key => $value) {
-            if ($first) {
-                $first = false;
-                $query = '';
-            } else {
-                $query .= ' AND ';
-            }
-            $query .=  "$key = :$key";
-        }
-
-        // Delete records that match $arguments criteria
-        $sql = 'DELETE FROM users WHERE ' . $query;
-        $stmt = $db->prepare($sql);
-        $stmt->execute($arguments);
     }
 }

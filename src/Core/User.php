@@ -17,6 +17,8 @@ use \Videna\Models\Tokens;
 class User
 {
 
+    use DataArray;
+
     private static $PublicKey = null;
     private static $PrivateKey = null;
 
@@ -29,7 +31,10 @@ class User
     {
 
         // If Database not used - no any users can be registered
-        if (!USE_DB) return ['account' => USR_UNREG];
+        if (!USE_DB) {
+            self::set(['account' => USR_UNREG]);
+            return;
+        }
 
         // if session ID was received via cookie, user was registered. 
         // In this case - start session:
@@ -39,9 +44,9 @@ class User
 
             if (isset($_SESSION['user_id'])) {
                 // user has been already  logged-in. return user info array:
-                $user = Users::getUser(['id' => $_SESSION['user_id']]);
+                self::setAll(Users::get(['id' => $_SESSION['user_id']], 1));
                 session_write_close();
-                return $user;
+                return;
             }
 
             session_write_close();
@@ -52,7 +57,8 @@ class User
         // Try to recovery user login via cookies
         if (!isset($_COOKIE['public-key'])) {
             // user wasn't registered yet
-            return ['account' => USR_UNREG];
+            self::set(['account' => USR_UNREG]);
+            return;
         }
 
         // At this point 'public-key' exists, that means user was registered
@@ -63,20 +69,24 @@ class User
 
         if ($userId == null) {
             // no records with token in DB
-            return ['account' => USR_UNREG];
+            self::set(['account' => USR_UNREG]);
+            return;
         }
 
         // Token exists, so just pull user info from DB:
-        $user = Users::getUser(['id' => $userId]);
-        if ($user == false) return ['account' => USR_UNREG];
+        $user = Users::get(['id' => $userId], 1);
+        if ($user == false) {
+            self::set(['account' => USR_UNREG]);
+            return;
+        }
 
         // Add user info in session
         session_start();
         $_SESSION['user_id'] = $user['id'];
         session_write_close();
 
-        // Return array with user's data
-        return $user;
+        // Set array with user's data
+        self::setAll($user);
     }
 
 
@@ -102,7 +112,7 @@ class User
         // Update public key in cookies:
         setcookie('public-key', self::getPublicKey(), $expires, '/', HOST_NAME, (HTP_PROTOCOL == 'https' ? true : false));
 
-        return self::detect();
+        self::detect();
     }
 
 
@@ -132,7 +142,8 @@ class User
             unset($_COOKIE['public-key']);
         }
 
-        return ['account' => USR_UNREG];
+        self::clear();
+        self::set(['account' => USR_UNREG]);
     }
 
 

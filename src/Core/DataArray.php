@@ -38,4 +38,14 @@ trait DataArray
     {
         self::$data = $dataArray;
     }
+
+    public static function clear()
+    {
+        self::$data = [];
+    }
+
+    public static function mergeWith($new)
+    {
+        self::$data = array_merge(self::$data, $new);
+    }
 }

@@ -18,6 +18,12 @@ abstract class Controller
     public function __call($name, $args)
     {
 
+        // Determine User account type:
+        User::detect();
+
+        // Determine User language:
+        Lang::detect();
+
         // Filter "before" - executes before action starts
         $this->before();
 
