@@ -22,7 +22,7 @@ class Config
         $path = PATH_FWK . 'configs/app.config.def.php';
         if (is_file($path)) {
             $config = include_once $path;
-        } else Log::add(["FATAL ERROR" => "Application config file not found."], "FATAL ERROR: Application config file not found.");
+        } else Log::add("WARNING: Application config file not found.");
 
         // Connect app config file if exists
         $path =  'App/configs/app.config.php';

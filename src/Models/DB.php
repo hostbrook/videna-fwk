@@ -66,7 +66,7 @@ abstract class DB extends Database
      * 
      * @param string $query is SQL `INSERT` statement with PDO placeholders
      * @param array $criterias is array of criterias
-     * @return array Returns last added record ID
+     * @return int last added record ID
      * 
      * @example 
      *      $users = DB::insert(
@@ -91,7 +91,7 @@ abstract class DB extends Database
      * 
      * @param string $query is SQL `UPDATE` statement with PDO placeholders
      * @param array $criterias is array of criteria
-     *@return int number of rows affected by the SQL statement
+     * @return int number of rows affected by the SQL statement
      * 
      * @example 
      *      $users = DB::update(
