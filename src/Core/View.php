@@ -15,6 +15,11 @@ class View
 {
     use DataArray;
 
+    /**
+     * @var string $route is a route to the view that needs to be shown
+     */
+    public static $show = null;
+
 
     /**
      * Renders static page
@@ -22,9 +27,18 @@ class View
      */
     public static function render()
     {
+        if (self::$show == null) {
+            $errorDescription = 'FATAL Error: View was not determined';
+            Log::add([
+                $errorDescription,
+                'Controller: ' . Router::$controller,
+                'Action: ' . Router::$action
+            ], $errorDescription);
+        }
+
         extract(self::getAll(), EXTR_SKIP);
 
-        require_once PATH_VIEWS . Router::$view  . '.php';
+        require_once PATH_VIEWS . self::$show  . '.php';
     }
 
 
@@ -42,13 +56,13 @@ class View
             ]);
         }
 
-        if (Router::$view) {
+        if (self::$show != null) {
 
             extract(self::getAll(), EXTR_SKIP);
 
             ob_start();
 
-            include_once PATH_VIEWS . Router::$view  . '.php';
+            include_once PATH_VIEWS . self::$show  . '.php';
 
             self::set(['html' => ob_get_clean()]);
         }

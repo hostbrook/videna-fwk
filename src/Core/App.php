@@ -32,19 +32,23 @@ class App
             // Cron jobs:
             Router::$argv = $argv;
             Router::$controller = $argv[1];
+            Router::$action = 'Index';
         }
 
         // EXECUTE ACTION AT THE CONTROLLER
-        $controller = 'App\\Controllers\\' . Router::$controller;
+        if (Router::$controller == null) {
+            // Controller can be null only in case if route is view-type
+            $controller = 'Videna\\Controllers\\StaticPage';
+        } else $controller = 'App\\Controllers\\' . Router::$controller;
 
         if (class_exists($controller)) {
 
-            $controller_object = new $controller();
+            $controllerObject = new $controller();
             $action = Router::$action;
 
-            if (method_exists($controller_object, 'action' . $action)) {
+            if (method_exists($controllerObject, 'action' . $action)) {
 
-                $controller_object->$action();
+                $controllerObject->$action();
             } else {
                 // Method/Action doesn't exist
 
@@ -53,17 +57,17 @@ class App
                     'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
                 ]);
 
-                if ($argv === false) $this->showErrorPage("Method  '$action' not found in the controller '$controller'.");
+                if ($argv === false) $this->showErrorPage();
             }
         } else {
             // Class/Controller doesn't exist
 
-            if ($argv !== false) {
-                Log::add([
-                    "Error: Controller '$controller' not found.",
-                    'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-                ]);
-            } else $this->showErrorPage("Controller '$controller' not found");
+            Log::add([
+                "Error: Controller '$controller' not found.",
+                'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+            ]);
+
+            if ($argv === false) $this->showErrorPage();
         }
     }
 
@@ -75,46 +79,12 @@ class App
     private function showErrorPage()
     {
 
-        if (Config::get('default controller') === null or Config::get('error action') === null) {
-            // Error Controller or Error Action isn't defined in the App config file
-
-            $errorDescription = 'FATAL Error: Either Default Controller or Error Action isn\'t defined in the config file.';
-            Log::add([
-                $errorDescription,
-                'URL request: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-            ], $errorDescription);
-        }
-
-        Router::$controller = Config::get('default controller');
-        Router::$action = Config::get('error action');
-        Router::$response = 404;
-
-        $controller = 'App\\Controllers\\' . Router::$controller;
-
-        if (!class_exists($controller)) {
-            // Error Controller doesn't exist in /App/Controllers/
-
-            $errorDescription = "FATAL Error: The Error Controller '$controller' defined in App config file but doesn't exist in '/App/Controllers/'";
-            Log::add([
-                $errorDescription,
-                'URL request' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-            ], $errorDescription);
-        }
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+            // AJAX request
+            $controller = 'Videna\\Controllers\\AjaxHandler';
+        } else $controller = 'Videna\\Controllers\\StaticPage';
 
         $controllerObject = new $controller();
-        $action = Router::$action;
-
-        if (!method_exists($controllerObject, 'action' . $action)) {
-            // Error method doesn't exist in Error Controller
-
-            $errorDescription = "The Error method '$action' is defined in App config file but not found in the defined Error controller '$controller'.";
-            Log::add([
-                $errorDescription,
-                'URL' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-            ], $errorDescription);
-        }
-
-        // Call Error Controller -> Error Action:
-        $controllerObject->$action();
+        $controllerObject->Error(404);
     }
 }

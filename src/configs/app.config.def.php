@@ -18,12 +18,6 @@ define('URL_REL', '//' . HOST_NAME);
 return array(
 
     // Default Application settings
-
-    'default controller' => 'Page',
-    'default action' => 'Index',
-    'default view' => 'index',
-
-    'error action' => 'error',
     'error view' => 'error',
 
     'url suffixes' => ['.htm', '.html', '.php'],

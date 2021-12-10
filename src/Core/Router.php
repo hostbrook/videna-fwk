@@ -17,15 +17,13 @@ class Router
     use DataArray;
 
 
-    public static $controller;
-    public static $action;
-    public static $view;
-
+    public static $controller = null;
+    public static $action = 'Index';
     public static $lang = null;
+
     public static $response = 200;
     public static $argv = [];
 
-    public static $route;
     public static $routeName;
 
 
@@ -74,25 +72,31 @@ class Router
             $pattern = "#^" . trim($pattern, '/') . "$#";
 
             preg_match($pattern, trim($url, '/'), $matches);
-            if ($matches) {
 
-                self::$route = $route['route'];
-                self::$controller = $route['controller'];
-                self::$action = $route['action'];
-                self::$view = $route['view'];
-                Log::add(' route view: ' . self::$view);
-                if (isset($matches['lang'])) self::$lang = $matches['lang'];
-                if (isset($matches['name'])) self::$routeName = $matches['name'];
-
-                self::set($matches);
-
-                break;
-            }
+            if ($matches) break;
         }
 
-        if (!$matches) {
+        if ($matches) {
 
-            self::$action =  Config::get('error action');
+            self::$controller = $route['controller'];
+            self::$action = $route['action'];
+            View::$show = $route['view'];
+
+            if (isset($matches['lang'])) self::$lang = $matches['lang'];
+            if (isset($matches['name'])) self::$routeName = $matches['name'];
+
+            self::set($matches);
+
+            if (isset($route['redirect to'])) {
+                self::set([
+                    'redirect to' => $route['redirect to'],
+                    'status code' => $route['status code'],
+                ]);
+                return;
+            }
+        } else {
+
+            self::$action =  'Error';
             self::$response = 404;
 
             return;
@@ -112,7 +116,7 @@ class Router
 
                 if (self::injectionExists($key, STRICT) or self::injectionExists($value, NOT_STRICT)) {
 
-                    self::$action =  Config::get('error action');
+                    self::$action = 'Error';
                     self::$response = 400;
 
                     Log::add([
@@ -137,7 +141,7 @@ class Router
 
                 if (self::injectionExists($key, STRICT) or self::injectionExists($value, NOT_STRICT)) {
 
-                    self::$action =  Config::get('error action');
+                    self::$action = 'Error';
                     self::$response = 403;
 
                     Log::add([

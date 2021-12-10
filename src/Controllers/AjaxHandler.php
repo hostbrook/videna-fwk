@@ -81,8 +81,6 @@ class AjaxHandler extends \Videna\Core\Controller
             'response' => Router::$response,
             'status' => Lang::get('title response ' . Router::$response)
         ]);
-
-        Router::$view = false;
     }
 
 
@@ -98,8 +96,8 @@ class AjaxHandler extends \Videna\Core\Controller
             'lang' => Lang::$code
         ]);
 
-        if (Router::$view) View::set(['_' => Lang::getAll()]);
+        if (View::$show != null) View::set(['_' => Lang::getAll()]);
 
-        \Videna\Core\View::jsonRender();
+        View::jsonRender();
     }
 }

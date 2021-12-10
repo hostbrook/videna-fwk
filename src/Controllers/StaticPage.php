@@ -45,15 +45,12 @@ class StaticPage extends \Videna\Core\Controller
     public function actionError($errNr = false)
     {
 
-        if ($errNr) {
-            Router::$action =  Config::get('error action');
-            Router::$response = $errNr;
-        }
+        if ($errNr) Router::$response = $errNr;
 
-        Router::$view = Config::get('default controller') . '/' . Config::get('error view');
+        View::$show = Config::get('error view');
 
         // Check if Error view file exists.
-        if (!is_file(PATH_VIEWS . Router::$view  . '.php')) {
+        if (!is_file(PATH_VIEWS . View::$show  . '.php')) {
 
             Log::add([
                 'FATAL Error: The Error page not found.',
@@ -81,7 +78,7 @@ class StaticPage extends \Videna\Core\Controller
     {
 
         // Check if view file exists. If not -show 404 page.
-        if (!is_file(PATH_VIEWS . Router::$view  . '.php')) $this->actionError(404);
+        if (!is_file(PATH_VIEWS . View::$show  . '.php')) $this->actionError(404);
 
         View::set([
             'user' => User::getAll(),
@@ -100,10 +97,40 @@ class StaticPage extends \Videna\Core\Controller
      * @param string $url
      * @return void
      */
-    protected function redirect($url)
+    protected function actionRedirect($redirect_to = '/', $status_code = 302)
     {
-        header("HTTP/1.1 302 Found");
-        header("Location: $url");
+        if (Router::get('redirect to') != null) $redirect_to = Router::get('redirect to');
+        if (Router::get('status code') != null) $status_code = Router::get('status code');
+
+        Log::add([
+            $redirect_to,
+            $status_code
+        ]);
+
+        switch ($status_code) {
+            case 301:
+                header("HTTP/1.1 301 Moved Permanently");
+                break;
+            case 302:
+                header("HTTP/1.1 302 Found");
+                break;
+            case 303:
+                header("HTTP/1.1 303 See Other");
+                break;
+            case 304:
+                header("HTTP/1.1 304 Not Modified");
+                break;
+            case 307:
+                header("HTTP/1.1 307 Temporary Redirect");
+                break;
+            case 308:
+                header("HTTP/1.1 308 Permanent Redirect");
+                break;
+            default:
+                header("HTTP/1.1 302 Found");
+        }
+
+        header("Location: $redirect_to");
     }
 
 
@@ -115,14 +142,14 @@ class StaticPage extends \Videna\Core\Controller
     protected function getMeta($meta)
     {
 
-        if (Router::$action == 'error') {
+        if (View::$show == 'error') {
             $key = $meta . ' response ' . Router::$response;
             return Lang::get($key) != null ? Lang::get($key) : 'Unknown';
         }
 
-        $key = $meta . ' ' . Router::$view;
+        $key = $meta . ' ' . View::$show;
         if (Lang::get($key) == null) {
-            $key = $meta . ' ' . Config::get('default controller') . '/' . Config::get('default view');
+            $key = $meta . ' default';
             return Lang::get($key) != null ? Lang::get($key) : '';
         }
 

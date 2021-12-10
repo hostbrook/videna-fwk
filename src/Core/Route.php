@@ -18,21 +18,25 @@ class Route
     private static $currentRoute;
 
 
-    public static function add($route, $callback)
+    public static function add($route, $requestHandler)
     {
 
-        self::$currentRoute = $route;
+        self::$currentRoute = strtolower($route);
 
-        $actionData = explode('@', $callback);
-        $controller = $actionData[0] == null ? Config::get('default controller') : $actionData[0];
-        $action = $actionData[1] == null ? Config::get('default action') : $actionData[1];
-        $view = str_replace(['\\', '@'], '/', $callback);
+        $actionData = explode('@', $requestHandler);
+        if (!isset($actionData[0]) or !isset($actionData[1])) {
+            $description = "FATAL Error: Incorrect request handler at route `$route`";
+            Log::add($description, $description);
+        }
 
-        self::$routes[strtolower($route)] = [
-            'route' => strtolower($route),
+        $controller = $actionData[0];
+        $action = $actionData[1];
+
+        self::$routes[self::$currentRoute] = [
+            'route' => self::$currentRoute,
             'controller' => $controller,
             'action' => $action,
-            'view' => $view
+            'view' => null        // View has to be determined in controller!
         ];
 
         return new static();
@@ -41,16 +45,31 @@ class Route
 
     public static function view($route, $view)
     {
-        self::$currentRoute = $route;
+        self::$currentRoute = strtolower($route);
 
-        self::$routes[strtolower($route)] = [
-            'route' => strtolower($route),
-            'controller' => Config::get('default controller'),
-            'action' => Config::get('default action'),
+        self::$routes[self::$currentRoute] = [
+            'route' => self::$currentRoute,
+            'controller' => null,   // For view routes we set 'controller=null' and this is a flag to show a static view
+            'action' => 'Index',
             'view' => $view
         ];
 
         return new static();
+    }
+
+
+    public static function redirect($route, $redirect_to, $status_code = 302)
+    {
+        self::$currentRoute = strtolower($route);
+
+        self::$routes[self::$currentRoute] = [
+            'route' => self::$currentRoute,
+            'controller' => null,
+            'action' => 'Redirect',
+            'redirect to' => $redirect_to,
+            'status code' => $status_code,
+            'view' => null
+        ];
     }
 
 
@@ -59,6 +78,7 @@ class Route
         self::$routes[self::$currentRoute]['conditions'] = $conditions;
         return new static();
     }
+
 
     public function name($name)
     {
