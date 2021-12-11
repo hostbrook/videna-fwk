@@ -33,11 +33,9 @@ class Router
      */
     public static function init()
     {
-        define('STRICT', true);
-        define('NOT_STRICT', false);
-
         // Add all routes in data array of class Route:
         $path = 'App/configs/routes.php';
+
         if (!is_file($path)) {
             $errorDescription = "FATAL ERROR: Can\'t find application routes file.";
             Log::add($errorDescription, $errorDescription);
@@ -114,7 +112,7 @@ class Router
 
                 if ($key == 'url') continue;
 
-                if (self::injectionExists($key, STRICT) or self::injectionExists($value, NOT_STRICT)) {
+                if (self::injectionExists($key) or self::injectionExists($value)) {
 
                     self::$action = 'Error';
                     self::$response = 400;
@@ -139,7 +137,7 @@ class Router
 
             foreach ($_POST as $key => $value) {
 
-                if (self::injectionExists($key, STRICT) or self::injectionExists($value, NOT_STRICT)) {
+                if (self::injectionExists($key) or self::injectionExists($value)) {
 
                     self::$action = 'Error';
                     self::$response = 403;
@@ -162,10 +160,9 @@ class Router
      * Check parameter for injection
      * 
      * @param string $param Parameter to check
-     * @param boolean $strict Set 'true' if needs more strict check
      * @return boolean Returns 'true' if parameter contains incorrect symbols
      */
-    protected static function injectionExists($param, $strict = true)
+    protected static function injectionExists($param)
     {
 
         // strip_tags() - Remove HTML and PHP tags from a string
@@ -173,12 +170,6 @@ class Router
 
         // trim() - Remove "\n\r\t\v\0" from the beginning and end of a string
         $str = trim($str, "\n\r\t\v\0");
-
-        if ($strict) {
-
-            // htmlspecialchars() - Convert special characters to HTML entities
-            $str = htmlspecialchars($str);
-        }
 
         // stripslashes() - Returns a string with backslashes stripped off (\' becomes ' and so on).
         // Double backslashes (\\) are made into a single backslash (\). 

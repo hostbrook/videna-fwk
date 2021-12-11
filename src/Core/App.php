@@ -26,10 +26,10 @@ class App
 
         // DEFINING ROUTE PARAMETERS
         if ($argv === false) {
-            // HTTP requests:
+            // HTTP requests.
             Router::parse();
         } else {
-            // Cron jobs:
+            // Cron Job request.
             Router::$argv = $argv;
             Router::$controller = $argv[1];
             Router::$action = 'Index';

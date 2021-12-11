@@ -102,11 +102,6 @@ class StaticPage extends \Videna\Core\Controller
         if (Router::get('redirect to') != null) $redirect_to = Router::get('redirect to');
         if (Router::get('status code') != null) $status_code = Router::get('status code');
 
-        Log::add([
-            $redirect_to,
-            $status_code
-        ]);
-
         switch ($status_code) {
             case 301:
                 header("HTTP/1.1 301 Moved Permanently");

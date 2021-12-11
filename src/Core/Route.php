@@ -14,10 +14,25 @@ namespace Videna\Core;
 class Route
 {
 
+    /** 
+     * @var array|null $routes contains list of registered routes 
+     */
     public static $routes = [];
+
+    /** 
+     * @var string $currentRoute contains name of the last added route 
+     */
     private static $currentRoute;
 
 
+    /**
+     * Add route to the registered routes list
+     * 
+     * @param string $route A route needs to be registered
+     * @param string $requestHandler Name of Controller and Action separated by @
+     * 
+     * @return object
+     */
     public static function add($route, $requestHandler)
     {
 
@@ -43,6 +58,14 @@ class Route
     }
 
 
+    /**
+     * Add a View route to the registered routes list
+     * 
+     * @param string $route A route needs to be registered
+     * @param string $view A path to the view needs to be shown
+     * 
+     * @return object
+     */
     public static function view($route, $view)
     {
         self::$currentRoute = strtolower($route);
@@ -58,6 +81,15 @@ class Route
     }
 
 
+    /**
+     * Add a route to the registered routes list, that require redirection
+     * 
+     * @param string $route A route needs to be registered, 'URL redirection from'
+     * @param string $redirect_to A 'URL redirection to'
+     * @param int $status_code A a redirection status code
+     * 
+     * @return void
+     */
     public static function redirect($route, $redirect_to, $status_code = 302)
     {
         self::$currentRoute = strtolower($route);
@@ -73,6 +105,13 @@ class Route
     }
 
 
+    /**
+     * Property to set conditions for route parameters
+     * 
+     * @param array $conditions A name of the parameter and a regular expression defining how the parameter should be constrained.
+     * 
+     * @return object
+     */
     public static function where($conditions)
     {
         self::$routes[self::$currentRoute]['conditions'] = $conditions;
@@ -80,6 +119,13 @@ class Route
     }
 
 
+    /**
+     * Property to set route name
+     * 
+     * @param string $name A name of the route
+     * 
+     * @return object
+     */
     public function name($name)
     {
         self::$routes[self::$currentRoute]['name'] = $name;
