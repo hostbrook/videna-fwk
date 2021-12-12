@@ -25,6 +25,7 @@ class App
     {
 
         // DEFINING ROUTE PARAMETERS
+
         if ($argv === false) {
             // HTTP requests.
             Router::parse();
@@ -35,10 +36,12 @@ class App
             Router::$action = 'Index';
         }
 
+
         // EXECUTE ACTION AT THE CONTROLLER
+
         if (Router::$controller == null) {
             // Controller can be null only in case if route is view-type
-            $controller = 'Videna\\Controllers\\StaticPage';
+            $controller = 'Videna\\Controllers\\WebPage';
         } else $controller = 'App\\Controllers\\' . Router::$controller;
 
         if (class_exists($controller)) {
@@ -80,9 +83,10 @@ class App
     {
 
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-            // AJAX request
+            // Set base controller for AJAX request to return the error:
             $controller = 'Videna\\Controllers\\AjaxHandler';
-        } else $controller = 'Videna\\Controllers\\StaticPage';
+        } // Set base controller for http request to show error: 
+        else $controller = 'Videna\\Controllers\\WebPage';
 
         $controllerObject = new $controller();
         $controllerObject->Error(404);

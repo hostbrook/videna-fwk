@@ -20,9 +20,9 @@ class Route
     public static $routes = [];
 
     /** 
-     * @var string $currentRoute contains name of the last added route 
+     * @var string $name contains name of the current route 
      */
-    private static $currentRoute;
+    public static $name;
 
 
     /**
@@ -36,7 +36,7 @@ class Route
     public static function add($route, $requestHandler)
     {
 
-        self::$currentRoute = strtolower($route);
+        self::$name = strtolower($route);
 
         $actionData = explode('@', $requestHandler);
         if (!isset($actionData[0]) or !isset($actionData[1])) {
@@ -47,8 +47,8 @@ class Route
         $controller = $actionData[0];
         $action = $actionData[1];
 
-        self::$routes[self::$currentRoute] = [
-            'route' => self::$currentRoute,
+        self::$routes[self::$name] = [
+            'route' => self::$name,
             'controller' => $controller,
             'action' => $action,
             'view' => null        // View has to be determined in controller!
@@ -68,10 +68,10 @@ class Route
      */
     public static function view($route, $view)
     {
-        self::$currentRoute = strtolower($route);
+        self::$name = strtolower($route);
 
-        self::$routes[self::$currentRoute] = [
-            'route' => self::$currentRoute,
+        self::$routes[self::$name] = [
+            'route' => self::$name,
             'controller' => null,   // For view routes we set 'controller=null' and this is a flag to show a static view
             'action' => 'Index',
             'view' => $view
@@ -92,10 +92,10 @@ class Route
      */
     public static function redirect($route, $redirect_to, $status_code = 302)
     {
-        self::$currentRoute = strtolower($route);
+        self::$name = strtolower($route);
 
-        self::$routes[self::$currentRoute] = [
-            'route' => self::$currentRoute,
+        self::$routes[self::$name] = [
+            'route' => self::$name,
             'controller' => null,
             'action' => 'Redirect',
             'redirect to' => $redirect_to,
@@ -114,7 +114,7 @@ class Route
      */
     public static function where($conditions)
     {
-        self::$routes[self::$currentRoute]['conditions'] = $conditions;
+        self::$routes[self::$name]['conditions'] = $conditions;
         return new static();
     }
 
@@ -128,7 +128,7 @@ class Route
      */
     public function name($name)
     {
-        self::$routes[self::$currentRoute]['name'] = $name;
+        self::$routes[self::$name]['name'] = $name;
         return new static();
     }
 }

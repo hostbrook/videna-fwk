@@ -10,10 +10,8 @@
 
 namespace Videna\Models;
 
-use PDO;
 
-
-class Tokens extends Database
+class Tokens extends Model
 {
 
 

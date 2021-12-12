@@ -10,10 +10,8 @@
 
 namespace Videna\Models;
 
-use PDO;
 
-
-class Users extends Database
+class Users extends Model
 {
 
     /**

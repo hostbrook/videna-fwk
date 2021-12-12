@@ -21,7 +21,7 @@ use \Videna\Core\Lang;
 /**
  * Class to maintain Static Page requests  
  */
-class StaticPage extends \Videna\Core\Controller
+class WebPage extends \Videna\Core\Controller
 {
 
     /**
@@ -94,7 +94,9 @@ class StaticPage extends \Videna\Core\Controller
 
     /**
      * Redirect to specific url
-     * @param string $url
+     * 
+     * @param string $redirect_to A redirection URL 
+     * @param int $status_code A redirection status code
      * @return void
      */
     protected function actionRedirect($redirect_to = '/', $status_code = 302)

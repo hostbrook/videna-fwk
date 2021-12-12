@@ -19,9 +19,6 @@ return array(
 
     // Default Application settings
     'error view' => 'error',
-
-    'url suffixes' => ['.htm', '.html', '.php'],
-
     'default language' => 'en',
     'supported languages' => ['en'],
 

@@ -41,7 +41,7 @@ class CronJob
             }
         }
 
-        // Set and call the requested action:
+        // Router::$action='Index' - action is a default action for CRON job
         $method = 'action' . Router::$action;
         call_user_func_array([$this, $method], $args);
     }

@@ -10,8 +10,7 @@
 
 namespace Videna\Models;
 
-use PDO;
-use \Videna\Core\Log;
+use \Videna\Core\Database;
 
 
 abstract class DB extends Database

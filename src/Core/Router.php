@@ -24,8 +24,6 @@ class Router
     public static $response = 200;
     public static $argv = [];
 
-    public static $routeName;
-
 
     /**
      * Initialization of the router's variables.
@@ -81,7 +79,7 @@ class Router
             View::$show = $route['view'];
 
             if (isset($matches['lang'])) self::$lang = $matches['lang'];
-            if (isset($matches['name'])) self::$routeName = $matches['name'];
+            if (isset($matches['name'])) Route::$name = $matches['name'];
 
             self::set($matches);
 
