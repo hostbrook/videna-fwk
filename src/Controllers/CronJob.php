@@ -6,13 +6,17 @@
  * 
  * @example  
  *   To run in OpenServer:
- *   "%progdir%\modules\php\%phpdriver%\php-win.exe" -c "%progdir%\modules\php\%phpdriver%\php.ini" -q -f "%sitedir%\videna\public\index.php" "Cron" "Argument 2"
+ *   "%progdir%\modules\php\%phpdriver%\php-win.exe" -c "%progdir%\modules\php\%phpdriver%\php.ini" -q -f "%sitedir%\videna\public\index.php" "Cron@Index" "Argument 2"
  * 
  *   To run at shared linux hosting:
- *   /usr/local/bin/php -q /home/public_html/public/index.php "Cron" "Argument 2"
+ *   /usr/local/bin/php -q /home/public_html/public/index.php "Cron@Index" "Argument 2"
  *
  *   To direct run at HTTP (admin rights required):
- *   https://domain.com/<cron_controller>?arg1=<cron_controller>&arg2=<arg2>...
+ *   1. Add route to the registered routes list, for example:
+ *      Route::add('/cronjob', 'Cron@Index');
+ *   2. Log-in in your application as administrator
+ *   3. use http request:
+ *      https://domain.com/cronjob?arg1=null&arg2=<arg2>&arg3=<arg3>...
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
  * @author HostBrook <support@hostbrook.com>
@@ -34,14 +38,14 @@ class CronJob
         if (Router::$argv[0] === false) {
 
             // Check if user has admin rights:
-            $user = User::detect();
-            if ($user['account'] < USR_ADMIN) {
+            User::detect();
+
+            if (User::get('account') < USR_ADMIN) {
                 http_response_code(401);
                 exit;
             }
         }
 
-        // Router::$action='Index' - action is a default action for CRON job
         $method = 'action' . Router::$action;
         call_user_func_array([$this, $method], $args);
     }

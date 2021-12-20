@@ -14,14 +14,35 @@ namespace Videna\Core;
 class Router
 {
 
+    /**
+     * Use use setter/getter to get access to POST and GET parameters
+     */
     use DataArray;
 
+    /**
+     * Current controller name (with namespace)
+     * @var string $controller
+     */
+    public static $controller;
 
-    public static $controller = null;
-    public static $action = 'Index';
+    /**
+     * Current action name
+     */
+    public static $action;
+
+    /**
+     * Locale (if exist in route)
+     */
     public static $lang = null;
 
+    /**
+     * HTTP response
+     */
     public static $response = 200;
+
+    /**
+     * Arguments if cron job request
+     */
     public static $argv = [];
 
 
@@ -43,17 +64,28 @@ class Router
 
     /**
      * Parsing the requested URI.
+     * @param array|false An array with arguments if crone job
      * @return void
      */
-    public static function parse()
+    public static function parse($argv)
     {
+        // Check if cron job
 
-        // 1. Check SEF URL 
+        if ($argv) {
+            // the first parameter is controller and action
+            list(self::$controller, self::$action) = Route::getControllerAction($argv[1], 'Crone job: ' . $argv[1]);
+            self::$controller = 'App\\Controllers\\' . self::$controller;
+            self::$argv = $argv;
+            return;
+        }
+
+        // Check SEF URL 
 
         if (isset($_GET['url'])) {
             $url = strtolower($_GET['url']);
         } else $url = '/';
 
+        // Check each registered route and try to find match
         foreach (Route::$routes as $route) {
             $pattern = $route['route'];
 
@@ -73,9 +105,15 @@ class Router
         }
 
         if ($matches) {
+            // if match has been found
 
-            self::$controller = $route['controller'];
+            if ($route['controller'] == null) {
+                // if ether view or redirect - set default controller:
+                self::$controller = self::getDefaultController();
+            } else self::$controller = 'App\\Controllers\\' . $route['controller'];
+
             self::$action = $route['action'];
+
             View::$show = $route['view'];
 
             if (isset($matches['lang'])) self::$lang = $matches['lang'];
@@ -91,7 +129,9 @@ class Router
                 return;
             }
         } else {
+            // if no matches found - user try to go to unregistered route
 
+            self::$controller = self::getDefaultController();
             self::$action =  'Error';
             self::$response = 404;
 
@@ -99,12 +139,12 @@ class Router
         }
 
 
-        // 2. Check other GET parameters (after "?")
+        // Check other GET parameters (after "?")
 
         if (!empty($_GET)) {
 
             // set $argv[0] = false - flag for cron job via HTTP
-            self::$argv[] = false;
+            self::$argv[0] = false;
 
             foreach ($_GET as $key => $value) {
 
@@ -129,7 +169,7 @@ class Router
         }
 
 
-        // 3. Check POST-parameters
+        // Check POST-parameters
 
         if (!empty($_POST)) {
 
@@ -175,5 +215,21 @@ class Router
 
         if ($str != $param) return true;
         return false;
+    }
+
+
+    /**
+     * Check HTTP request type and returns default controller name
+     * @return string Returns the default controller with namespace
+     */
+    public static function getDefaultController()
+    {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+            // Set base controller for AJAX request to return the error:
+            return 'Videna\\Controllers\\AjaxHandler';
+        }
+
+        // Set base controller for http request to show error: 
+        return 'Videna\\Controllers\\WebPage';
     }
 }

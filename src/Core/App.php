@@ -25,24 +25,9 @@ class App
     {
 
         // DEFINING ROUTE PARAMETERS
+        Router::parse($argv);
 
-        if ($argv === false) {
-            // HTTP requests.
-            Router::parse();
-        } else {
-            // Cron Job request.
-            Router::$argv = $argv;
-            Router::$controller = $argv[1];
-            Router::$action = 'Index';
-        }
-
-
-        // EXECUTE ACTION AT THE CONTROLLER
-
-        if (Router::$controller == null) {
-            // Controller can be null only in case if route is view-type
-            $controller = 'Videna\\Controllers\\WebPage';
-        } else $controller = 'App\\Controllers\\' . Router::$controller;
+        $controller = Router::$controller;
 
         if (class_exists($controller)) {
 
@@ -81,13 +66,7 @@ class App
      */
     private function showErrorPage()
     {
-
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-            // Set base controller for AJAX request to return the error:
-            $controller = 'Videna\\Controllers\\AjaxHandler';
-        } // Set base controller for http request to show error: 
-        else $controller = 'Videna\\Controllers\\WebPage';
-
+        $controller = Router::getDefaultController();
         $controllerObject = new $controller();
         $controllerObject->Error(404);
     }

@@ -29,23 +29,16 @@ class Route
      * Add route to the registered routes list
      * 
      * @param string $route A route needs to be registered
-     * @param string $requestHandler Name of Controller and Action separated by @
+     * @param string $request Name of Controller and Action separated by @
      * 
      * @return object
      */
-    public static function add($route, $requestHandler)
+    public static function add($route, $request)
     {
 
         self::$name = strtolower($route);
 
-        $actionData = explode('@', $requestHandler);
-        if (!isset($actionData[0]) or !isset($actionData[1])) {
-            $description = "FATAL Error: Incorrect request handler at route `$route`";
-            Log::add($description, $description);
-        }
-
-        $controller = $actionData[0];
-        $action = $actionData[1];
+        list($controller, $action) = self::getControllerAction($request, $route);
 
         self::$routes[self::$name] = [
             'route' => self::$name,
@@ -130,5 +123,23 @@ class Route
     {
         self::$routes[self::$name]['name'] = $name;
         return new static();
+    }
+
+
+    /**
+     * Parce route to split request on controller and action
+     * @param string $request 'Controller@Action'
+     * @param string $route A route name
+     * @return array An array with controller [1] and action [2]
+     */
+    public static function getControllerAction($request, $route)
+    {
+        $actionData = explode('@', $request);
+        if (!isset($actionData[0]) or !isset($actionData[1])) {
+            $description = "FATAL Error: Incorrect request handler at route `$route`";
+            Log::add($description, $description);
+        }
+
+        return $actionData;
     }
 }
