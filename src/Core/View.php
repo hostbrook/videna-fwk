@@ -38,7 +38,7 @@ class View
 
         extract(self::getAll(), EXTR_SKIP);
 
-        require_once PATH_VIEWS . self::$show  . '.php';
+        require_once PATH_VIEWS . self::$show;
     }
 
 
@@ -62,7 +62,7 @@ class View
 
             ob_start();
 
-            include_once PATH_VIEWS . self::$show  . '.php';
+            include_once PATH_VIEWS . self::$show;
 
             self::set(['html' => ob_get_clean()]);
         }

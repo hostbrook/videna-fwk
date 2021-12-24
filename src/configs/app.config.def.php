@@ -18,7 +18,7 @@ define('URL_REL', '//' . HOST_NAME);
 return array(
 
     // Default Application settings
-    'error view' => 'error',
+    'error view' => 'error.php',
     'default language' => 'en',
     'supported languages' => ['en'],
 
