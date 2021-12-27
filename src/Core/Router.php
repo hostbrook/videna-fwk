@@ -104,6 +104,9 @@ class Router
             if ($matches) break;
         }
 
+        //print_r ($matches);
+       // die;
+
         if ($matches) {
             // if match has been found
 
@@ -116,8 +119,8 @@ class Router
 
             View::$show = $route['view'];
 
-            if (isset($matches['lang'])) self::$lang = $matches['lang'];
-            if (isset($matches['name'])) Route::$name = $matches['name'];
+            self::$lang = isset($matches['lang']) ? $matches['lang'] : null;
+            Route::$name = isset($route['name']) ? $route['name'] : null;
 
             self::set($matches);
 

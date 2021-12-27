@@ -14,25 +14,19 @@ use \Videna\Core\Router;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
 use \Videna\Core\User;
+use \Videna\Core\Config;
 
 
 class AjaxHandler extends \Videna\Core\Controller
 {
 
     /**
-     * Default action, executes if action was missed in ajax request
+     * Default action to show view by ajax request
      * @return void
      */
     public function actionIndex()
     {
-
-        View::set([
-            'response' => 404,
-            'status' => View::get('title response 404'),
-
-            'text' => 'Action/Method not found in class \'' . Router::$controller . '\'',
-            'html' => '<p>Action/Method not found in class \'' . Router::$controller . '\'</p>'
-        ]);
+        if (!is_file(PATH_VIEWS . View::$show)) $this->actionError(404);
     }
 
 
@@ -51,16 +45,19 @@ class AjaxHandler extends \Videna\Core\Controller
 
         if ($errNr) Router::$response = $errNr;
 
-        View::set([
-            'response' => Router::$response,
-            'status' => View::get('title response ' . Router::$response),
-        ]);
+        $error = 'title response ' . Router::$response;
+        $error = Lang::get($error) != null ? Lang::get($error) : 'Error';
 
         $description = 'description response ' . Router::$response;
+        $description = Lang::get($description) != null ? Lang::get($description) : 'Unknown error is occurred';
+
         View::set([
-            'text' => Lang::get($description) != null ? Lang::get($description) : 'Unknown error is occurred.',
-            'html' => '<p>' . Lang::get($description) != null ? Lang::get($description) : 'Unknown error is occurred.' . '</p>'
+            'response' => Router::$response,
+            'status' => Lang::get('title response ' . Router::$response),
+            'view' => "<h3>$error</h3><p>$description</p>"
         ]);
+
+        View::$show = null;
     }
 
 
@@ -90,13 +87,13 @@ class AjaxHandler extends \Videna\Core\Controller
      */
     protected function after()
     {
+        if (View::$show != null) View::set(['_' => Lang::getAll()]);
 
         View::set([
-            'user' => User::getAll(),
-            'lang' => Lang::$code
+            'user' => (object)User::getAll(),
+            'lang' => Lang::$code,
+            'config' => Config::getAll()
         ]);
-
-        if (View::$show != null) View::set(['_' => Lang::getAll()]);
 
         View::jsonRender();
     }

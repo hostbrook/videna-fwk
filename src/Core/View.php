@@ -49,13 +49,6 @@ class View
     public static function jsonRender()
     {
 
-        if (empty(self::getAll())) {
-            self::set([
-                'response' => -1,
-                'status' => 'No data to show'
-            ]);
-        }
-
         if (self::$show != null) {
 
             extract(self::getAll(), EXTR_SKIP);
@@ -64,7 +57,7 @@ class View
 
             include_once PATH_VIEWS . self::$show;
 
-            self::set(['html' => ob_get_clean()]);
+            self::set(['view' => ob_get_clean()]);
         }
 
         die(json_encode(self::getAll()));

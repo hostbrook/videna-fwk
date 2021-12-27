@@ -48,7 +48,7 @@ abstract class DB extends Database
      *          ['account' => 100]
      *      );
      */
-    public static function select($query, $criterias)
+    public static function select($query, $criterias = [])
     {
 
         $db = static::getDB();
