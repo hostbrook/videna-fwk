@@ -40,8 +40,10 @@ abstract class Controller
     }
 
 
+    // Default action for quick views in route list
     abstract protected function actionIndex();
 
+    // Default error action
     abstract protected function actionError();
 
     // Filter "before" - before action starts

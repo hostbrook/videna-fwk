@@ -22,10 +22,10 @@ class View
 
 
     /**
-     * Renders static page
+     * Renders and output static page
      * @return string rended HTML
      */
-    public static function render()
+    public static function output()
     {
         if (self::$show == null) {
             $errorDescription = 'FATAL Error: View was not determined';
@@ -43,45 +43,42 @@ class View
 
 
     /**
-     * Returns AJAX requests results
+     * Returns AJAX request result
      * @return string rended JSON
      */
-    public static function jsonRender()
+    public static function returnJSON()
     {
-
-        if (self::$show != null) {
-
-            extract(self::getAll(), EXTR_SKIP);
-
-            ob_start();
-
-            include_once PATH_VIEWS . self::$show;
-
-            self::set(['view' => ob_get_clean()]);
-        }
-
         die(json_encode(self::getAll()));
     }
 
 
     /**
-     * Returns PHP templates and lets to use arguments (like language array), 
-     * for example in email messages.
+     * Render view using provided data as a parameters.
      * 
-     * @param string $view path to view 
+     * @param string $view a path to view 
+     * @param mixed $data rendered data in view
+     * 
      * @return string rended html|text
      */
-    public static function include($view)
+    public static function render($view, $data = [])
     {
 
         $file_path =  PATH_VIEWS . $view;
 
         if (!is_file($file_path)) {
             Log::add(["Error: View file '$view' not found."]);
-            return "{Not found: `$view`}";
+            return "Error 404. View file `$view` not found.";
         }
 
-        extract(View::getAll(), EXTR_SKIP);
+        if (!isset($data['user'])) $data['user'] = (object)User::getAll();
+        if (!isset($data['_'])) $data['_'] = Lang::getAll();
+        if (!isset($data['view'])) $data['view'] = (object)[
+            'lang' => Lang::$code,
+            'locale' => Lang::$locale
+        ];
+        if (!isset($data['config'])) $data['config'] = Config::getAll();
+
+        extract($data, EXTR_SKIP);
 
         ob_start();
 

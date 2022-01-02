@@ -87,14 +87,9 @@ class AjaxHandler extends \Videna\Core\Controller
      */
     protected function after()
     {
-        if (View::$show != null) View::set(['_' => Lang::getAll()]);
+        // For quick show view via route only:
+        if (View::$show != null) View::set(['view' => View::render(View::$show)]);
 
-        View::set([
-            'user' => (object)User::getAll(),
-            'lang' => Lang::$code,
-            'config' => Config::getAll()
-        ]);
-
-        View::jsonRender();
+        View::returnJSON();
     }
 }

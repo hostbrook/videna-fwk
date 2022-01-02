@@ -16,8 +16,8 @@ class Lang
 
     use DataArray;
 
-    public static $code;
-
+    public static $code = null;
+    public static $locale = null;
 
     /**
      * Detects the locale language and returns array of words
@@ -30,18 +30,23 @@ class Lang
 		  1. Detect the locale language
 		-------------------------------------------------------*/
 
+        // Try to detect Locale
+        // Locale is identified using RFC 4646 language tags
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) self::$locale = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 5);
+
         // Check if user have preffered language:
         if (User::get('account') > USR_UNREG and User::get('lang') != null) {
 
             self::$code = User::get('lang');
+
         } else {
 
             self::$code = mb_strtolower(Config::get('default language'));
 
             // [1] (Lowest) priority: browser language (if applicable):
-            if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            if (self::$locale != null) {
 
-                $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+                $lang = substr(self::$locale, 0, 2);
 
                 if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
             }

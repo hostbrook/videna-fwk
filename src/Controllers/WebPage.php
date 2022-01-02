@@ -26,7 +26,7 @@ class WebPage extends \Videna\Core\Controller
 {
 
     /**
-     * Index action is a default action
+     *  Default action for quick views in route list
      */
     public function actionIndex()
     {
@@ -87,13 +87,14 @@ class WebPage extends \Videna\Core\Controller
             'view' => (object)[
                 'title' => $this->getMeta('title'),
                 'description' => $this->getMeta('description'),
-                'lang' => Lang::$code
+                'lang' => Lang::$code,
+                'locale' => Lang::$locale
             ],
             'route' => (object)['name' => Route::$name],
             'config' => Config::getAll()
         ]);
 
-        \Videna\Core\View::render();
+        View::output();
     }
 
 
@@ -144,7 +145,7 @@ class WebPage extends \Videna\Core\Controller
     protected function getMeta($meta)
     {
 
-        if (View::$show == 'error.php') {
+        if (View::$show == Config::get('error view')) {
             $key = $meta . ' response ' . Router::$response;
             return Lang::get($key) != null ? Lang::get($key) : 'Unknown';
         }

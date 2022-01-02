@@ -20,28 +20,33 @@ class Route
     public static $routes = [];
 
     /** 
-     * @var string $name contains name of the current route 
+     * @var string $name contains the name of the current route 
      */
-    public static $name;
+    public static $name = null;
+
+    /** 
+     * @var string $current contains the current route pattern
+     */
+    private static $current = null;
 
 
     /**
      * Add route to the registered routes list
      * 
      * @param string $route A route needs to be registered
-     * @param string $request Name of Controller and Action separated by @
+     * @param string $routeHandler Name of Controller and Action separated by @
      * 
      * @return object
      */
-    public static function add($route, $request)
+    public static function add($route, $routeHandler)
     {
 
-        self::$name = strtolower($route);
+        self::$current = strtolower($route);
 
-        list($controller, $action) = self::getControllerAction($request, $route);
+        list($controller, $action) = self::getControllerAction($routeHandler, $route);
 
-        self::$routes[self::$name] = [
-            'route' => self::$name,
+        self::$routes[self::$current] = [
+            'route' => self::$current,
             'controller' => $controller,
             'action' => $action,
             'view' => null        // View has to be determined in controller!
@@ -61,10 +66,10 @@ class Route
      */
     public static function view($route, $view)
     {
-        self::$name = strtolower($route);
+        self::$current = strtolower($route);
 
-        self::$routes[self::$name] = [
-            'route' => self::$name,
+        self::$routes[self::$current] = [
+            'route' => self::$current,
             'controller' => null,   // For view routes we set 'controller=null' and this is a flag to show a static view
             'action' => 'Index',
             'view' => $view
@@ -85,10 +90,10 @@ class Route
      */
     public static function redirect($route, $redirect_to, $status_code = 302)
     {
-        self::$name = strtolower($route);
+        self::$current = strtolower($route);
 
-        self::$routes[self::$name] = [
-            'route' => self::$name,
+        self::$routes[self::$current] = [
+            'route' => self::$current,
             'controller' => null,
             'action' => 'Redirect',
             'redirect to' => $redirect_to,
@@ -107,7 +112,7 @@ class Route
      */
     public static function where($conditions)
     {
-        self::$routes[self::$name]['conditions'] = $conditions;
+        self::$routes[self::$current]['conditions'] = $conditions;
         return new static();
     }
 
@@ -121,22 +126,22 @@ class Route
      */
     public function name($name)
     {
-        self::$routes[self::$name]['name'] = $name;
+        self::$routes[self::$current]['name'] = $name;
         return new static();
     }
 
 
     /**
-     * Parce route to split request on controller and action
-     * @param string $request 'Controller@Action'
+     * Parce route to split route handler on controller and action
+     * @param string $routeHandler 'Controller@Action'
      * @param string $route A route name
      * @return array An array with controller [1] and action [2]
      */
-    public static function getControllerAction($request, $route)
+    public static function getControllerAction($routeHandler, $route)
     {
-        $actionData = explode('@', $request);
+        $actionData = explode('@', $routeHandler);
         if (!isset($actionData[0]) or !isset($actionData[1])) {
-            $description = "FATAL Error: Incorrect request handler at route `$route`";
+            $description = "FATAL Error: Incorrect route handler at route `$route`";
             Log::add($description, $description);
         }
 
