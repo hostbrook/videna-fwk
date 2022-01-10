@@ -66,7 +66,7 @@ abstract class Model extends Database
                     $first = false;
                     $query = '';
                 } else {
-                    $query .= ', ';
+                    $query .= ' AND ';
                 }
                 $query .=  "$key = :$key";
             }
@@ -94,27 +94,30 @@ abstract class Model extends Database
      *      Count all admin users in table `users`:
      *      $adminsQty = Users::count([ 'account' => 200 ]);
      */
-    public static function count($criteria)
+    public static function count($criteria = [])
     {
 
         $db = static::getDB();
 
         $sql = 'SELECT * FROM `' . self::getTableName() . '`';
 
-        // Prepare SQL query:
-        $first = true;
-        $query = '';
-        foreach ($criteria as $key => $value) {
-            if ($first) {
-                $first = false;
-                $query = '';
-            } else {
-                $query .= ', ';
+        if (!empty($criteria)) {
+            
+            // Prepare SQL query:
+            $first = true;
+            $query = '';
+            foreach ($criteria as $key => $value) {
+                if ($first) {
+                    $first = false;
+                    $query = '';
+                } else {
+                    $query .= ', ';
+                }
+                $query .=  "$key = :$key";
             }
-            $query .=  "$key = :$key";
-        }
 
-        $sql .= " WHERE $query";
+            $sql .= " WHERE $query";
+        }
 
         $stmt = $db->prepare($sql);
         $stmt->execute($criteria);

@@ -73,7 +73,7 @@ abstract class DB extends Database
      *          ['name' => 'John Doe', 'email' => 'john.doe@domain.com']
      *      );
      */
-    public static function insert($query, $criterias)
+    public static function insert($query, $criterias = [])
     {
 
         $db = static::getDB();
@@ -98,7 +98,7 @@ abstract class DB extends Database
      *          ['id' => 123, 'email' => 'john.doe@domain.com']
      *      );
      */
-    public static function update($query, $criterias)
+    public static function update($query, $criterias = [])
     {
 
         $db = static::getDB();
@@ -123,7 +123,7 @@ abstract class DB extends Database
      *          ['id' => 123]
      *      );
      */
-    public static function delete($query, $criterias)
+    public static function delete($query, $criterias = [])
     {
 
         $db = static::getDB();

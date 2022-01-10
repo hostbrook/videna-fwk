@@ -9,6 +9,11 @@
  */
 
 
+// Version
+define('FWK_VERSION', '1.10');
+define('PHP_VERSION', phpversion());
+
+
 // Project paths, used in PHP scripts to include files
 define('PATH_VIEWS', 'App/Views/');
 

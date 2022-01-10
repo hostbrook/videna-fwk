@@ -53,18 +53,22 @@ class Log
 
 
     /**
-     * Read log file
-     * @param string $file Path to log file
-     * @return array of strings of log file
+     * Read log file and return as an array of lines
+     * @param string $file_path Path to log file
+     * @return array|false 
+     *         array - An array of strings of log file
+     *         false - if empty log file (or log file doesn't exists)
      */
-    public static function read($file = PATH_APP_LOG)
+    public static function read($file_path = PATH_APP_LOG)
     {
 
-        if (!is_file($file)) return false;
+        if (!is_file($file_path)) return false;
 
-        $lines = file($file);
+        $lines = file($file_path);
 
-        foreach ($lines as $line_num => $line) $log[$line_num] = $line;
+        $log = false;
+
+        foreach ($lines as $line) $log[] = $line;
 
         return $log;
     }
@@ -75,11 +79,11 @@ class Log
      * @param string $file Path to log file
      * @return void
      */
-    public static function delete($file = PATH_APP_LOG)
+    public static function delete($file_path = PATH_APP_LOG)
     {
 
-        if (is_file($file)) {
-            if (unlink($file)) {
+        if (is_file($file_path)) {
+            if (unlink($file_path)) {
                 return 200;
             } else return 500;
         }
