@@ -45,7 +45,7 @@ class Mail extends PHPMailer
         } else Log::add(["FATAL ERROR: Mail config file '$file_path' not found"], "FATAL ERROR: Mail config file not found.");
 
         // Set properties from mail config
-        foreach ($mailConfig as $property) $this->$property = $property;
+        foreach ($mailConfig as $property => $value) $this->$property = $value;
         if (defined('DEF_EMAIL_FROM') and defined('DEF_NAME_FROM')) $this->setFrom(DEF_EMAIL_FROM, DEF_NAME_FROM);
 
         // Set generic settings
