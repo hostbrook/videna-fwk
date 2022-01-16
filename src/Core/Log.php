@@ -15,16 +15,16 @@ class Log
 
     /**
      * Put errors and debug info in log file
-     * @param array $data Array with debug info
-     * @param mixed $die The output message if stop script is required
+     * @param mixed $data An array or string with log info
+     * @param mixed $die Bool or string - the output message if stop script is required
      * @return void
      */
-    public static function add($data = 'Break Point', $die = FALSE)
+    public static function add($data, $die = FALSE, $level = INFO)
     {
 
         $fp = fopen(PATH_APP_LOG, "a");
 
-        $logLine = '[' . date("Y-m-d H:i:s") . '] ' . ($die ? 'FATAL ERROR' : 'DEBUG/INFO') . "\r\n";
+        $logLine = '[' . date("Y-m-d H:i:s") . '] ' . ($die ? 'FATAL ERROR' : $level) . "\r\n";
 
         if (is_array($data)) {
             foreach ($data as $error_descr) $logLine .= "$error_descr\r\n";
@@ -49,6 +49,123 @@ class Log
             if (APP_DEBUG) die($die);
             die('A fatal error has occurred.');
         }
+    }
+
+
+    /**
+     * Runtime errors that require immediate stop script
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function fatal($data, $die = TRUE)
+    {
+        self::add($data, $die, FATAL);
+    }
+
+    /**
+     * System is unusable.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function emergency($data)
+    {
+        self::add($data, FALSE, EMERGENCY);
+    }
+
+
+    /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function error($data)
+    {
+        self::add($data, FALSE, ERROR);
+    }
+
+
+    /**
+     * Action must be taken immediately.
+     *
+     * Example: Entire website down, database unavailable, etc. This should
+     * trigger the SMS alerts and wake you up.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function alert($data)
+    {
+        self::add($data, FALSE, ALERT);
+    }
+
+
+    /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function critical($data)
+    {
+        self::add($data, FALSE, CRITICAL);
+    }
+
+
+    /**
+     * Exceptional occurrences that are not errors.
+     *
+     * Example: Use of deprecated APIs, poor use of an API, undesirable things
+     * that are not necessarily wrong.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function warning($data)
+    {
+        self::add($data, FALSE, WARNING);
+    }
+
+
+    /**
+     * Interesting events.
+     *
+     * Example: User logs in, SQL logs.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function info($data)
+    {
+        self::add($data, FALSE, INFO);
+    }
+
+
+    /**
+     * Detailed debug information.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function debug($data)
+    {
+        self::add($data, FALSE,  DEBUG);
+    }
+
+
+    /**
+     * Normal but significant events.
+     *
+     * @param $data An array or string with log info
+     * @return void
+     */
+    public static function notice($data)
+    {
+        self::add($data, FALSE,  NOTICE);
     }
 
 

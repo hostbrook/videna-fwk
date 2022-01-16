@@ -10,7 +10,7 @@
 
 
 // Version
-define('FWK_VERSION', '1.12');
+define('FWK_VERSION', '1.13');
 define('PHP_VERSION', phpversion());
 
 
@@ -29,3 +29,14 @@ define('USR_ADMIN', 200);
 
 // Token lenght for user identifications
 define('TOKEN_LENGTH', 20); // 20 symbols
+
+// Describes log levels
+define('EMERGENCY', 'EMERGENCY');
+define('CRITICAL', 'CRITICAL');
+define('ERROR', 'ERROR');
+define('FATAL', 'FATAL');
+define('WARNING', 'WARNING');
+define('ALERT', 'ALERT');
+define('NOTICE', 'NOTICE');
+define('INFO', 'INFO');
+define('DEBUG', 'DEBUG');

@@ -13,8 +13,7 @@ namespace Videna\Controllers;
 use \Videna\Core\Router;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
-use \Videna\Core\User;
-use \Videna\Core\Config;
+use \Videna\Core\Log;
 
 
 class AjaxHandler extends \Videna\Core\Controller
@@ -26,7 +25,10 @@ class AjaxHandler extends \Videna\Core\Controller
      */
     public function actionIndex()
     {
-        if (!is_file(PATH_VIEWS . View::$show)) $this->actionError(404);
+        if (!is_file(PATH_VIEWS . View::$show)) {
+            Log::error('Error 404. File not found: ' . PATH_VIEWS . View::$show);
+            $this->actionError(404);
+        }
     }
 
 
