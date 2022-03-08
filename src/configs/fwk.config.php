@@ -10,8 +10,8 @@
 
 
 // Version
-define('FWK_VERSION', '1.13');
-define('PHP_VERSION', phpversion());
+define('FWK_VERSION', '1.14');
+if (!defined('PHP_VERSION')) define('PHP_VERSION', phpversion());
 
 
 // Project paths, used in PHP scripts to include files
