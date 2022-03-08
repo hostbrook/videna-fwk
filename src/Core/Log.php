@@ -183,7 +183,7 @@ class Log
 
         $lines = file($file_path);
 
-        $log = false;
+        $log = array();
 
         foreach ($lines as $line) $log[] = $line;
 
