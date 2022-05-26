@@ -206,6 +206,9 @@ class Router
     protected static function injectionExists($param)
     {
 
+        // Check for injecttions strings only
+        if (!is_string($param)) return false;
+
         // strip_tags() - Remove HTML and PHP tags from a string
         $str = strip_tags($param);
 
