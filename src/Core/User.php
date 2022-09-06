@@ -106,7 +106,7 @@ class User
         session_write_close();
 
         // Update public key in DB:
-        $expires = 0; // Valid until browser closed
+        $expires = Config::get('user token expires');
         Tokens::updatePublicKey(self::getPublicKey(true), $userId, self::getPrivateKey(), $expires);
 
         // Update public key in cookies:

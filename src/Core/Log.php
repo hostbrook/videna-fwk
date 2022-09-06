@@ -37,13 +37,6 @@ class Log
 
         if ($die) {
 
-            if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-                die(json_encode([
-                    'response' => 500,
-                    'status' => $die
-                ]));
-            }
-
             http_response_code(500);
 
             if (APP_DEBUG) die($die);
@@ -58,9 +51,12 @@ class Log
      * @param $data An array or string with log info
      * @return void
      */
-    public static function fatal($data, $die = TRUE)
+    public static function fatal($data, $die = NULL)
     {
-        self::add($data, $die, FATAL);
+        if ($die == NULL) {
+            self::add($data, $data, FATAL);
+        }
+        else self::add($data, $die, FATAL);
     }
 
     /**

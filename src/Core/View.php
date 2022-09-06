@@ -71,6 +71,7 @@ class View
         }
 
         if (!isset($data['user'])) $data['user'] = (object)User::getAll();
+        if (!isset($data['crsf'])) $data['crsf'] = (object)Crsf::getAll();
         if (!isset($data['_'])) $data['_'] = Lang::getAll();
         if (!isset($data['view'])) $data['view'] = (object)[
             'lang' => Lang::$code,

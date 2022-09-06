@@ -18,6 +18,7 @@ class App
     {
         Config::init();
         Router::init();
+        Crsf::init();
     }
 
 
@@ -66,7 +67,7 @@ class App
      */
     private function showErrorPage()
     {
-        $controller = Router::getDefaultController();
+        $controller = Config::get('default controller');
         $controllerObject = new $controller();
         $controllerObject->Error(404);
     }

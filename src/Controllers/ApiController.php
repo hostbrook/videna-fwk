@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Pre-cooked Ajax requests controller
+ * Pre-cooked API requests controller
  * Videna MVC Micro-Framework
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
@@ -14,9 +14,10 @@ use \Videna\Core\Router;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
 use \Videna\Core\Log;
+use \Videna\Core\Crsf;
 
 
-class AjaxHandler extends \Videna\Core\Controller
+class ApiController extends \Videna\Core\Controller
 {
 
     /**
@@ -69,12 +70,6 @@ class AjaxHandler extends \Videna\Core\Controller
      */
     protected function before()
     {
-
-        if (!(isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
-            http_response_code(403);
-            die("Access denied.");
-        }
-
         // Prepare response:
         View::set([
             'response' => Router::$response,

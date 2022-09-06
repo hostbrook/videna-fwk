@@ -104,15 +104,12 @@ class Router
             if ($matches) break;
         }
 
-        //print_r ($matches);
-       // die;
-
         if ($matches) {
             // if match has been found
 
             if ($route['controller'] == null) {
                 // if ether view or redirect - set default controller:
-                self::$controller = self::getDefaultController();
+                self::$controller = Config::get('default controller');
             } else self::$controller = 'App\\Controllers\\' . $route['controller'];
 
             self::$action = $route['action'];
@@ -134,13 +131,15 @@ class Router
         } else {
             // if no matches found - user try to go to unregistered route
 
-            self::$controller = self::getDefaultController();
+            self::$controller = Config::get('default controller');
             self::$action =  'Error';
             self::$response = 404;
 
             return;
         }
 
+
+        $checkCRSF = false;
 
         // Check other GET parameters (after "?")
 
@@ -168,6 +167,7 @@ class Router
 
                 self::set([$key => $value]);
                 self::$argv[] = $value;
+                $checkCRSF = true;
             }
         }
 
@@ -192,6 +192,68 @@ class Router
                 }
 
                 self::set([$key => $value]);
+                $checkCRSF = true;
+            }
+        }
+
+
+        // Check JSON parameters sent by FETCH
+
+        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+
+        if ($contentType == "application/json") {
+
+            $content = trim(file_get_contents("php://input"));
+            $decoded = json_decode($content, true);
+
+            // Send error to Fetch API, if JSON is broken
+            if(! is_array($decoded)) {
+
+                self::$controller = Config::get('default api controller');
+                self::$action = 'Error';
+                self::$response = 403;
+
+                Log::warning([
+                    'Received JSON is improperly formatted',
+                    'FETCH content: ' . htmlspecialchars($content)
+                ]);                
+            }
+
+            foreach ($decoded as $key => $value) {
+
+                if (self::injectionExists($key) or self::injectionExists($value)) {
+
+                    self::$controller = Config::get('default api controller');
+                    self::$action = 'Error';
+                    self::$response = 403;
+
+                    Log::warning([
+                        'Injection Warning: Checking FETCH parameters in router',
+                        'Requested URI: key=' . htmlspecialchars($key) . ' value=' . htmlspecialchars($value)
+                    ]);
+
+                    return;
+                }
+
+                self::set([$key => $value]);
+                $checkCRSF = true;
+            }
+
+        }
+
+        if ($checkCRSF) {
+            if (self::get('crsf_token') == null || !Crsf::valid(self::get('crsf_token'))) {
+
+                self::$controller = Config::get('default api controller');
+                self::$action = 'Error';
+                self::$response = 403;
+
+                Log::warning([
+                    'CRSF token doesn\'t exist or outdated.',
+                    'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+                ]);
+
+                return;
             }
         }
     }
@@ -223,19 +285,4 @@ class Router
         return false;
     }
 
-
-    /**
-     * Check HTTP request type and returns default controller name
-     * @return string Returns the default controller with namespace
-     */
-    public static function getDefaultController()
-    {
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-            // Set base controller for AJAX request to return the error:
-            return 'Videna\\Controllers\\AjaxHandler';
-        }
-
-        // Set base controller for http request to show error: 
-        return 'Videna\\Controllers\\WebPage';
-    }
 }

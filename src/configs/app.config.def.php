@@ -19,7 +19,14 @@ return array(
 
     // Default Application settings
     'error view' => 'error.php',
+
     'default language' => 'en',
     'supported languages' => ['en'],
+
+    'default controller' => 'Videna\\Controllers\\HttpController',
+    'default api controller' => 'Videna\\Controllers\\ApiController',
+
+    'user token expires' => 0, // Valid until browser closed
+    'crsf token expires' => 0, // Valid until browser closed
 
 );

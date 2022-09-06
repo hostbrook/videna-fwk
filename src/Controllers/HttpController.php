@@ -17,12 +17,13 @@ use \Videna\Core\Route;
 use \Videna\Core\Config;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
+use \Videna\Core\Crsf;
 
 
 /**
  * Class to maintain Static Page requests  
  */
-class WebPage extends \Videna\Core\Controller
+class HttpController extends \Videna\Core\Controller
 {
 
     /**
@@ -55,9 +56,8 @@ class WebPage extends \Videna\Core\Controller
 
             Log::add([
                 'FATAL Error: The Error page not found.',
-                'Requested URI' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI']),
-                'FATAL Error: The Error page not found.'
-            ]);
+                'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])                
+            ], 'FATAL Error: The Error page not found.');
         }
     }
 
@@ -83,6 +83,7 @@ class WebPage extends \Videna\Core\Controller
 
         View::set([
             'user' => (object)User::getAll(),
+            'crsf' => (object)Crsf::getAll(),
             '_' => Lang::getAll(),
             'view' => (object)[
                 'title' => $this->getMeta('title'),
