@@ -56,28 +56,29 @@ class Router
         $path = 'App/configs/routes.php';
 
         if (!is_file($path)) {
-            $errorDescription = "FATAL ERROR: Can\'t find application routes file.";
-            Log::add($errorDescription, $errorDescription);
+            Log::fatal("FATAL ERROR: Can\'t find application routes file.");
         } else require_once $path;
     }
 
 
     /**
-     * Parsing the requested URI.
-     * @param array|false An array with arguments if crone job
+     * Parsing the Cron job parameters
      * @return void
      */
-    public static function parse($argv)
+    public static function parseCron()
     {
-        // Check if cron job
+        // the first parameter is controller and action
+        list(self::$controller, self::$action) = Route::getControllerAction(self::$argv[1], 'Crone job: ' . self::$argv[1]);
+        self::$controller = 'App\\Controllers\\' . self::$controller;
+    }
 
-        if ($argv) {
-            // the first parameter is controller and action
-            list(self::$controller, self::$action) = Route::getControllerAction($argv[1], 'Crone job: ' . $argv[1]);
-            self::$controller = 'App\\Controllers\\' . self::$controller;
-            self::$argv = $argv;
-            return;
-        }
+
+    /**
+     * Parsing the requested URI.
+     * @return void
+     */
+    public static function parse()
+    {
 
         // Check SEF URL 
 
@@ -85,7 +86,7 @@ class Router
             $url = strtolower($_GET['url']);
         } else $url = '/';
 
-        // Check each registered route and try to find match
+        // Checking each registered route and trying to find the match
         foreach (Route::$routes as $route) {
             $pattern = $route['route'];
 
@@ -106,10 +107,10 @@ class Router
 
         if ($matches) {
             // if match has been found
-
+            
             if ($route['controller'] == null) {
                 // if ether view or redirect - set default controller:
-                self::$controller = Config::get('default controller');
+                self::$controller = App::getDefaultController();
             } else self::$controller = 'App\\Controllers\\' . $route['controller'];
 
             self::$action = $route['action'];
@@ -131,7 +132,7 @@ class Router
         } else {
             // if no matches found - user try to go to unregistered route
 
-            self::$controller = Config::get('default controller');
+            self::$controller = App::getDefaultController();
             self::$action =  'Error';
             self::$response = 404;
 
@@ -139,7 +140,7 @@ class Router
         }
 
 
-        $checkCRSF = false;
+        $checkCSRF = false;
 
         // Check other GET parameters (after "?")
 
@@ -157,7 +158,7 @@ class Router
                     self::$action = 'Error';
                     self::$response = 400;
 
-                    Log::add([
+                    Log::warning([
                         'Injection Warning: Checking GET[] parameters in router',
                         'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
                     ]);
@@ -167,7 +168,7 @@ class Router
 
                 self::set([$key => $value]);
                 self::$argv[] = $value;
-                $checkCRSF = true;
+                $checkCSRF = true;
             }
         }
 
@@ -183,7 +184,7 @@ class Router
                     self::$action = 'Error';
                     self::$response = 403;
 
-                    Log::add([
+                    Log::warning([
                         'Injection Warning: Checking POST[] parameters in router',
                         'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
                     ]);
@@ -192,16 +193,14 @@ class Router
                 }
 
                 self::set([$key => $value]);
-                $checkCRSF = true;
+                $checkCSRF = true;
             }
         }
 
 
         // Check JSON parameters sent by FETCH
 
-        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
-
-        if ($contentType == "application/json") {
+        if (App::$requestType == RQST_API) {
 
             $content = trim(file_get_contents("php://input"));
             $decoded = json_decode($content, true);
@@ -236,20 +235,23 @@ class Router
                 }
 
                 self::set([$key => $value]);
-                $checkCRSF = true;
+                $checkCSRF = true;
             }
 
         }
+        
 
-        if ($checkCRSF) {
-            if (self::get('crsf_token') == null || !Crsf::valid(self::get('crsf_token'))) {
+        // CSRF Protection 
+
+        if ($checkCSRF) {
+            if (self::get('csrf_token') == null || !csrf::valid(self::get('csrf_token'))) {
 
                 self::$controller = Config::get('default api controller');
                 self::$action = 'Error';
                 self::$response = 403;
 
                 Log::warning([
-                    'CRSF token doesn\'t exist or outdated.',
+                    'CSRF token doesn\'t exist or outdated.',
                     'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
                 ]);
 

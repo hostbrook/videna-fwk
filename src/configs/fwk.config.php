@@ -10,7 +10,7 @@
 
 
 // Version
-define('FWK_VERSION', '1.15');
+define('FWK_VERSION', '2.1');
 if (!defined('PHP_VERSION')) define('PHP_VERSION', phpversion());
 
 
@@ -40,3 +40,9 @@ define('ALERT', 'ALERT');
 define('NOTICE', 'NOTICE');
 define('INFO', 'INFO');
 define('DEBUG', 'DEBUG');
+
+// Request types
+define('RQST_HTTP', 'WEB HTTP request');
+define('RQST_API', 'API JSON request');
+define('RQST_AJAX', 'API AJAX request');
+define('RQST_CRON', 'Cron job');

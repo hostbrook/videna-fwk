@@ -14,7 +14,7 @@ use \Videna\Core\Router;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
 use \Videna\Core\Log;
-use \Videna\Core\Crsf;
+use \Videna\Core\Csrf;
 
 
 class ApiController extends \Videna\Core\Controller

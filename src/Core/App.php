@@ -12,63 +12,121 @@ namespace Videna\Core;
 
 
 class App
-{
+{   
+    /**
+     * Request type (HTTP, JSON API or Cron job)
+     * Contains 'Request types' constants from framework config 
+     */
+    public static $requestType;
 
-    public function __construct()
+
+    /**
+     * Application constructor. Initialization of application.
+     * @param array $argv Array of arguments from command line (|| false)
+     */
+    public function __construct($argv)
     {
         Config::init();
         Router::init();
-        Crsf::init();
+
+        self::$requestType = $this->detectRequestType($argv);
+
+        if (self::$requestType == RQST_CRON) {
+            Router::$argv = $argv;
+        }
+        else Csrf::init();
     }
 
 
-    public function execute($argv = false)
+    /**
+     * Execute application.
+     * @return void
+     */
+    public function execute()
     {
+        // Defining route parameters
+        if (self::$requestType == RQST_CRON) {
+            Router::parseCron();
+        }
+        else Router::parse();
 
-        // DEFINING ROUTE PARAMETERS
-        Router::parse($argv);
-
+        // Get a controller from router parameters
         $controller = Router::$controller;
 
         if (class_exists($controller)) {
 
             $controllerObject = new $controller();
+            // Get a action from router parameters
             $action = Router::$action;
 
             if (method_exists($controllerObject, 'action' . $action)) {
-
+                // Method/Action exist: proceed request
                 $controllerObject->$action();
             } else {
-                // Method/Action doesn't exist
-
-                Log::add([
-                    "Error: Method  '$action' not found in the controller '$controller'.",
-                    'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-                ]);
-
-                if ($argv === false) $this->showErrorPage();
+                // Method/Action doesn't exist: show error
+                if ($argv === false) $this->showErrorPage("Error: Method  '$action' not found in the controller '$controller'.");
             }
         } else {
-            // Class/Controller doesn't exist
-
-            Log::add([
-                "Error: Controller '$controller' not found.",
-                'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-            ]);
-
-            if ($argv === false) $this->showErrorPage();
+            // Class/Controller doesn't exist: show error
+            $this->showErrorPage("Error: Controller '$controller' not found.");
         }
     }
 
 
     /**
-     *  Redirect to Error Action if the requested controller (or action) does not exist.
-     *  If the Error Controller (or action) does not exist - stop application with a fatal error.
+     * Redirect to Error Action if the requested controller (or action) does not exist.
+     * @param string $message Error message
+     * @return void
      */
-    private function showErrorPage()
+    private function showErrorPage($message = 'Unknown application error.')
     {
-        $controller = Config::get('default controller');
-        $controllerObject = new $controller();
-        $controllerObject->Error(404);
+        Log::error([
+            $message,
+            'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+        ]);
+
+        // Show error using default controller:
+        if (self::$requestType != RQST_CRON) {
+            $controller = self::getDefaultController();
+            $controllerObject = new $controller();
+            $controllerObject->Error(404);
+        }
     }
+
+
+    /**
+     * Trying to detect request type. By default request type is Web HTTP.
+     * @param array $argv Array of arguments from command line (|| false)
+     * @return string Request type
+     */
+    private function detectRequestType($argv)
+    {
+        if ($argv) return RQST_CRON;    
+
+        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+        if ($contentType == "application/json") return RQST_API;
+
+        if ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) return RQST_AJAX;
+
+        return RQST_HTTP;
+    }
+
+
+    /**
+     * Detect default controller from app config based on request type
+     * @return string Default controller
+     */
+    public static function getDefaultController()
+    {
+        switch (self::$requestType) {
+            case RQST_HTTP:                   
+                return Config::get('default controller');
+                break;
+            case RQST_API:
+            case RQST_AJAX:
+                return Config::get('default api controller');
+                break;
+        }
+    }
+
 }

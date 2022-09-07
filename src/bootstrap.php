@@ -26,7 +26,7 @@ set_error_handler('Videna\Core\Error::errorHandler');
 set_exception_handler('Videna\Core\Error::exceptionHandler');
 
 // 5. Execute Application
-$app = new App();
-$app->execute(isset($argv) ? $argv : false);
+$app = new App(isset($argv) ? $argv : false);
+$app->execute();
 
 // END Bootstrap

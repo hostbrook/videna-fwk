@@ -17,7 +17,7 @@ use \Videna\Core\Route;
 use \Videna\Core\Config;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
-use \Videna\Core\Crsf;
+use \Videna\Core\Csrf;
 
 
 /**
@@ -83,7 +83,7 @@ class HttpController extends \Videna\Core\Controller
 
         View::set([
             'user' => (object)User::getAll(),
-            'crsf' => (object)Crsf::getAll(),
+            'csrf' => (object)Csrf::getAll(),
             '_' => Lang::getAll(),
             'view' => (object)[
                 'title' => $this->getMeta('title'),

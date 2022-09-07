@@ -27,10 +27,9 @@ abstract class Database
     {
 
         if (USE_DB === false) {
-            $errorDescription = 'FATAL Error: The request to DB was initialized but DB is not allowed in the config.';
-            Log::add($errorDescription, $errorDescription);
+            Log::fatal('FATAL Error: The request to DB was initialized but DB is not allowed in the config.');
         }
-
+        
         if (self::$db === null) {
 
             // Connect to DB

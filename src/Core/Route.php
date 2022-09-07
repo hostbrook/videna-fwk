@@ -142,7 +142,7 @@ class Route
         $actionData = explode('@', $routeHandler);
         if (!isset($actionData[0]) or !isset($actionData[1])) {
             $description = "FATAL Error: Incorrect route handler at route `$route`";
-            Log::add($description, $description);
+            Log::fatal($description);
         }
 
         return $actionData;
