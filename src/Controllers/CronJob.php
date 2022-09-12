@@ -16,7 +16,7 @@
  *      Route::add('/cronjob', 'Cron@Index');
  *   2. Log-in in your application as administrator
  *   3. And use http request:
- *      https://domain.com/cronjob?arg1=null&arg2=<arg2>&arg3=<arg3>...&csrf_token=<csrf_token>
+ *      https://domain.com/cronjob?arg1=null&arg2=<arg2>&arg3=<arg3>
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
  * @author HostBrook <support@hostbrook.com>
@@ -26,12 +26,18 @@ namespace Videna\Controllers;
 
 use \Videna\Core\Router;
 use \Videna\Core\User;
+use \Videna\Core\Config;
+use \Videna\Core\Lang;
 
 
-class CronJob
+class CronJob extends \Videna\Core\Controller
 {
 
-    public function __call($name, $args)
+    /**
+     * Filter "before" each action
+     * @return void
+     */
+    protected function before()
     {
 
         // Check if Admin runs crone job by HTTP:
@@ -45,8 +51,41 @@ class CronJob
                 exit;
             }
         }
+    }
 
-        $method = 'action' . Router::$action;
-        call_user_func_array([$this, $method], $args);
+
+    /**
+     * Action to show the error
+     * 
+     * @param int $errNr statusCode number
+     * @return void
+     */
+    public function actionError($errNr = false)
+    {
+
+        if (Router::$argv[0] === false) {
+            // Admin runs cron job by HTTP:
+
+            Router::$statusCode = $errNr;
+
+            Lang::$code = Config::get('default language');
+            Lang::loadDefault();
+    
+            // Prepare response:
+            Log::fatal([
+                'Cron job error. Status code: ', Router::$statusCode,
+                Lang::get('title response ' . Router::$statusCode)
+            ]);
+        }
+    }
+
+
+    /**
+     * Filter "after" each action
+     * @return void
+     */
+    protected function after()
+    {
+
     }
 }

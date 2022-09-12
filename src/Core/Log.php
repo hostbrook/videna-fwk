@@ -36,10 +36,10 @@ class Log
         fclose($fp);
 
         if ($die) {
+            
+            http_response_code(Router::$statusCode == 200 ? 500 : Router::$statusCode);
 
-            http_response_code(500);
-
-            if (APP_DEBUG) die($die);
+            if (APP_DEBUG) die(is_array($die) ? $die[0] : $die);
             die('A fatal error has occurred.');
         }
     }

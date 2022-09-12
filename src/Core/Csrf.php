@@ -48,18 +48,17 @@ class Csrf
 
     /**
      * Validation of CSRF token 
-     * @param string $token Token to check
-     * @return boolean true (valid token) || false (invalid token)
+     * @return boolean true (valid csrf_token) || false (invalid csrf_token)
      */
-    public static function valid($token)
+    public static function valid()
     {
-        if ( !isset($_COOKIE['csrf_token']) ) return false;
+        if (Router::get('csrf_token') == null || !isset($_COOKIE['csrf_token'])) return false;
 
         $csrfToken = explode(':', $_COOKIE['csrf_token']);
 
         if (!is_array($csrfToken) || !isset($csrfToken[1])) return false;
 
-        if ($csrfToken[0] != $token || self::getSessionId() != $csrfToken[1]) return false;
+        if ($csrfToken[0] != Router::get('csrf_token') || self::getSessionId() != $csrfToken[1]) return false;
 
         return true;
     }

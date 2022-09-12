@@ -13,17 +13,8 @@ namespace Videna\Core;
 
 abstract class Controller
 {
-
-
     public function __call($name, $args)
     {
-
-        // Determine User account type:
-        User::detect();
-
-        // Determine User language:
-        Lang::detect();
-
         // Filter "before" - executes before action starts
         $this->before();
 
@@ -34,14 +25,7 @@ abstract class Controller
 
         // Filter "after" - executes after action is completed
         $this->after();
-
-        // Finally send response to client:
-        http_response_code(Router::$response);
     }
-
-
-    // Default action for quick views in route list
-    abstract protected function actionIndex();
 
     // Default error action
     abstract protected function actionError();

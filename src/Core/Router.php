@@ -31,6 +31,11 @@ class Router
     public static $action;
 
     /**
+     * The request method
+     */
+    public static $method;
+
+    /**
      * Locale (if exist in route)
      */
     public static $lang = null;
@@ -38,7 +43,7 @@ class Router
     /**
      * HTTP response
      */
-    public static $response = 200;
+    public static $statusCode = 200;
 
     /**
      * Arguments if cron job request
@@ -102,20 +107,21 @@ class Router
 
             preg_match($pattern, trim($url, '/'), $matches);
 
-            if ($matches) break;
+            if ($matches && $route['method'] == $_SERVER['REQUEST_METHOD']) break;
         }
-
+        
         if ($matches) {
             // if match has been found
+            self::$method = $route['method'];
             
             if ($route['controller'] == null) {
                 // if ether view or redirect - set default controller:
                 self::$controller = App::getDefaultController();
             } else self::$controller = 'App\\Controllers\\' . $route['controller'];
-
+            
             self::$action = $route['action'];
 
-            View::$show = $route['view'];
+            View::setPath($route['view']);
 
             self::$lang = isset($matches['lang']) ? $matches['lang'] : null;
             Route::$name = isset($route['name']) ? $route['name'] : null;
@@ -131,20 +137,17 @@ class Router
             }
         } else {
             // if no matches found - user try to go to unregistered route
-
             self::$controller = App::getDefaultController();
             self::$action =  'Error';
-            self::$response = 404;
+            self::$statusCode = 404;
 
             return;
         }
 
 
-        $checkCSRF = false;
-
         // Check other GET parameters (after "?")
 
-        if (!empty($_GET)) {
+        if (self::$method == 'GET' && !empty($_GET)) {
 
             // set $argv[0] = false - flag for cron job via HTTP
             self::$argv[0] = false;
@@ -156,7 +159,7 @@ class Router
                 if (self::injectionExists($key) or self::injectionExists($value)) {
 
                     self::$action = 'Error';
-                    self::$response = 400;
+                    self::$statusCode = 400;
 
                     Log::warning([
                         'Injection Warning: Checking GET[] parameters in router',
@@ -168,21 +171,20 @@ class Router
 
                 self::set([$key => $value]);
                 self::$argv[] = $value;
-                $checkCSRF = true;
             }
         }
 
 
         // Check POST-parameters
 
-        if (!empty($_POST)) {
+        if (self::$method == 'POST' && !empty($_POST)) {
 
             foreach ($_POST as $key => $value) {
 
                 if (self::injectionExists($key) or self::injectionExists($value)) {
 
                     self::$action = 'Error';
-                    self::$response = 403;
+                    self::$statusCode = 400;
 
                     Log::warning([
                         'Injection Warning: Checking POST[] parameters in router',
@@ -193,70 +195,62 @@ class Router
                 }
 
                 self::set([$key => $value]);
-                $checkCSRF = true;
             }
         }
 
 
-        // Check JSON parameters sent by FETCH
+        // Checking PUT, DELETE, PATCH requests and sent via JS FETCH or Ajax
 
-        if (App::$requestType == RQST_API) {
+        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+
+        if ( $contentType == "application/json" || in_array(self::$method, ['PUT', 'PATCH', 'DELETE'] )) {
 
             $content = trim(file_get_contents("php://input"));
-            $decoded = json_decode($content, true);
 
-            // Send error to Fetch API, if JSON is broken
-            if(! is_array($decoded)) {
+            if ( $contentType == "application/json" ) {
+                $decoded = json_decode($content, true);
+            }
+            else parse_str($content, $decoded);
+            
+            if(!is_array($decoded)) {
 
-                self::$controller = Config::get('default api controller');
-                self::$action = 'Error';
-                self::$response = 403;
+                Log::debug('parse_str doesnt work');
 
-                Log::warning([
-                    'Received JSON is improperly formatted',
-                    'FETCH content: ' . htmlspecialchars($content)
-                ]);                
+                $decoded = json_decode($content, true);
+            
+                if(!is_array($decoded)) {
+                    Log::debug('json_decode doesnt work');
+                    // Send error to Fetch API, if JSON is broken
+                    self::$controller = App::getDefaultController();
+                    self::$action = 'Error';
+                    self::$statusCode = 400;
+
+                    Log::warning([
+                        'Received JSON is improperly formatted',
+                        'php://input content: ' . htmlspecialchars($content)
+                    ]);
+                } 
             }
 
             foreach ($decoded as $key => $value) {
 
                 if (self::injectionExists($key) or self::injectionExists($value)) {
 
-                    self::$controller = Config::get('default api controller');
+                    self::$controller = App::getDefaultController();
                     self::$action = 'Error';
-                    self::$response = 403;
+                    self::$statusCode = 400;
 
                     Log::warning([
-                        'Injection Warning: Checking FETCH parameters in router',
-                        'Requested URI: key=' . htmlspecialchars($key) . ' value=' . htmlspecialchars($value)
+                        'Injection Warning: Checking php://input content parameters:',
+                        'key=' . htmlspecialchars($key) . ' value=' . htmlspecialchars($value)
                     ]);
 
                     return;
                 }
 
                 self::set([$key => $value]);
-                $checkCSRF = true;
             }
 
-        }
-        
-
-        // CSRF Protection 
-
-        if ($checkCSRF) {
-            if (self::get('csrf_token') == null || !csrf::valid(self::get('csrf_token'))) {
-
-                self::$controller = Config::get('default api controller');
-                self::$action = 'Error';
-                self::$response = 403;
-
-                Log::warning([
-                    'CSRF token doesn\'t exist or outdated.',
-                    'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
-                ]);
-
-                return;
-            }
         }
     }
 

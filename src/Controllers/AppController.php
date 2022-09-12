@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Pre-cooked API requests controller
+ * Pre-cooked Web Application requests controller
  * Videna MVC Micro-Framework
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
@@ -11,31 +11,41 @@
 namespace Videna\Controllers;
 
 use \Videna\Core\Router;
+use \Videna\Core\User;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
-use \Videna\Core\Config;
-use \Videna\Core\App;
 use \Videna\Core\Log;
+use \Videna\Core\Csrf;
 
 
-class ApiController extends \Videna\Core\Controller
+class AppController extends \Videna\Core\Controller
 {
-
     /**
      * Filter before the each action
      * @return void
      */
     protected function before()
     {
-        Lang::$code = Config::get('default language');
-        Lang::loadDefault();
+        // Determine User account type:
+        User::detect();
 
-        $response = Lang::get('title response ' . Router::$statusCode);
+        // Determine User language:
+        Lang::detect();
+
+        // CSRF Protection 
+        if (Router::$method != 'GET' && !Csrf::valid()) {
+            Router::$action = 'Error';
+            Router::$statusCode = 403;
+            Log::warning('CSRF token doesn\'t exist or outdated.');
+            return;
+        }
+        
         // Prepare response:
         View::set([
             'statusCode' => Router::$statusCode,
-            'response' => $response
+            'response' => Lang::get('title response ' . Router::$statusCode)
         ]);
+        
     }
 
 

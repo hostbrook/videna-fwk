@@ -16,18 +16,50 @@ class View
     use DataArray;
 
     /**
-     * @var string $route is a route to the view that needs to be shown
+     * @var string $path is a path to the view that needs to be shown
      */
-    public static $show = null;
+    private static $path = null;
 
 
     /**
-     * Renders and output static page
-     * @return string rended HTML
+     * Set path to the current view
+     * @param string $path is a path to the view that needs to be shown
+     * @return void
+     */
+    public static function setPath($path)
+    {
+        self::$path = $path;
+    }
+
+
+    /**
+     * Retrive path to the current view
+     * @return string $path is a path to the view that needs to be shown
+     */
+    public static function getPath()
+    {
+        if (self::$path == null) return false;
+        return self::$path;
+    }
+
+
+    /**
+     * Clear path to the current view
+     * @return void
+     */
+    public static function clearPath()
+    {
+        self::$path = null;
+    }
+
+
+    /**
+     * Renders and output the static HTML page
+     * @return void Output rendered HTML page
      */
     public static function output()
     {
-        if (self::$show == null) {
+        if (!self::getPath()) {
             $errorDescription = 'FATAL Error: View was not determined';
             Log::add([
                 $errorDescription,
@@ -38,17 +70,20 @@ class View
 
         extract(self::getAll(), EXTR_SKIP);
 
-        require_once PATH_VIEWS . self::$show;
+        http_response_code(Router::$statusCode);
+        
+        require_once PATH_VIEWS . self::getPath();
     }
 
 
     /**
-     * Returns AJAX request result
-     * @return string rended JSON
+     * Returns request result in  JSON
+     * @return string Rended JSON
      */
     public static function returnJSON()
     {
-        die(json_encode(self::getAll()));
+        http_response_code(Router::$statusCode);
+        echo json_encode(self::getAll());
     }
 
 

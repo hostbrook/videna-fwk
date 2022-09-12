@@ -27,32 +27,32 @@ class HttpController extends \Videna\Core\Controller
 {
 
     /**
-     *  Default action for quick views in route list
+     *  Default action for quick views in route list (route::view())
      */
-    public function actionIndex()
+    public function actionShowView()
     {
     }
 
 
     /**
      * Action to show the error page
-     * This methot is triggered if:
+     * This action is triggered if:
      * - injection warning @Router 
-     * - Requested Class or Method not found in App class
+     * - requested Class or Method not found in App class
      * - redirection from action if error needs to be shown
      * 
-     * @param int $errNr Response number
+     * @param int $statusCode statusCode number
      * @return void
      */
-    public function actionError($errNr = false)
+    public function actionError($statusCode = false)
     {
 
-        if ($errNr) Router::$response = $errNr;
+        if ($statusCode) Router::$statusCode = $statusCode;
 
-        View::$show = Config::get('error view');
+        View::setPath(Config::get('error view'));
 
         // Check if Error view file exists.
-        if (!is_file(PATH_VIEWS . View::$show)) {
+        if (!is_file(PATH_VIEWS . View::getPath())) {
 
             Log::add([
                 'FATAL Error: The Error page not found.',
@@ -68,6 +68,19 @@ class HttpController extends \Videna\Core\Controller
      */
     protected function before()
     {
+        // Determine User account type:
+        User::detect();
+
+        // Determine User language:
+        Lang::detect();
+
+        // CSRF Protection 
+        if (Router::$method != 'GET' && !csrf::valid()) {
+            Router::$action = 'Error';
+            Router::$statusCode = 403;
+            Log::warning('CSRF token doesn\'t exist or outdated.');
+            return;
+        }
     }
 
 
@@ -79,7 +92,7 @@ class HttpController extends \Videna\Core\Controller
     {
 
         // Check if view file exists. If not -show 404 page.
-        if (!is_file(PATH_VIEWS . View::$show)) $this->actionError(404);
+        if (!is_file(PATH_VIEWS . View::getPath())) $this->actionError(404);
 
         View::set([
             'user' => (object)User::getAll(),
@@ -103,15 +116,18 @@ class HttpController extends \Videna\Core\Controller
      * Redirect to specific url
      * 
      * @param string $redirect_to A redirection URL 
-     * @param int $status_code A redirection status code
+     * @param int $statusCode A redirection status code
      * @return void
      */
-    protected function actionRedirect($redirect_to = '/', $status_code = 302)
+    protected function actionRedirect($redirect_to = '/', $statusCode = 302)
     {
         if (Router::get('redirect to') != null) $redirect_to = Router::get('redirect to');
-        if (Router::get('status code') != null) $status_code = Router::get('status code');
+        if (Router::get('status code') != null) $statusCode = Router::get('status code');
 
-        switch ($status_code) {
+        switch ($statusCode) {
+            case 200:
+                header("HTTP/1.1 200 OK");
+                break;
             case 301:
                 header("HTTP/1.1 301 Moved Permanently");
                 break;
@@ -135,6 +151,7 @@ class HttpController extends \Videna\Core\Controller
         }
 
         header("Location: $redirect_to");
+        exit;
     }
 
 
@@ -146,12 +163,12 @@ class HttpController extends \Videna\Core\Controller
     protected function getMeta($meta)
     {
 
-        if (View::$show == Config::get('error view')) {
-            $key = $meta . ' response ' . Router::$response;
+        if (View::getPath() == Config::get('error view')) {
+            $key = $meta . ' response ' . Router::$statusCode;
             return Lang::get($key) != null ? Lang::get($key) : 'Unknown';
         }
 
-        $key = $meta . ' ' . View::$show;
+        $key = $meta . ' ' . View::getPath();
         if (Lang::get($key) == null) {
             $key = $meta . ' default';
             return Lang::get($key) != null ? Lang::get($key) : '';

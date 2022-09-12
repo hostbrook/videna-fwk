@@ -31,24 +31,138 @@ class Route
 
 
     /**
-     * Add route to the registered routes list
+     * Add route for GET request to the registered routes list
+     * The HTTP GET method is used to read (or retrieve) a representation of a resource.
      * 
      * @param string $route A route needs to be registered
      * @param string $routeHandler Name of Controller and Action separated by @
      * 
      * @return object
      */
-    public static function add($route, $routeHandler)
+    public static function get($route, $routeHandler)
     {
 
-        self::$current = strtolower($route);
+        self::$current = count(self::$routes);
 
         list($controller, $action) = self::getControllerAction($routeHandler, $route);
 
         self::$routes[self::$current] = [
-            'route' => self::$current,
+            'route' => strtolower($route),
             'controller' => $controller,
             'action' => $action,
+            'method' => 'GET',
+            'view' => null        // View has to be determined in controller!
+        ];
+
+        return new static();
+    }
+
+
+    /**
+     * Add route for POST request to the registered routes list
+     * The POST method is most often utilized to create new resources.
+     * 
+     * @param string $route A route needs to be registered
+     * @param string $routeHandler Name of Controller and Action separated by @
+     * 
+     * @return object
+     */
+    public static function post($route, $routeHandler)
+    {
+
+        self::$current = count(self::$routes);
+
+        list($controller, $action) = self::getControllerAction($routeHandler, $route);
+
+        self::$routes[self::$current] = [
+            'route' => strtolower($route),
+            'controller' => $controller,
+            'action' => $action,
+            'method' => 'POST',
+            'view' => null        // View has to be determined in controller!
+        ];
+
+        return new static();
+    }
+
+
+    /**
+     * Add route for PATCH request to the registered routes list
+     * The PATCH method applies partial modifications to a resource.
+     * 
+     * @param string $route A route needs to be registered
+     * @param string $routeHandler Name of Controller and Action separated by @
+     * 
+     * @return object
+     */
+    public static function patch($route, $routeHandler)
+    {
+
+        self::$current = count(self::$routes);
+
+        list($controller, $action) = self::getControllerAction($routeHandler, $route);
+
+        self::$routes[self::$current] = [
+            'route' => strtolower($route),
+            'controller' => $controller,
+            'action' => $action,
+            'method' => 'PATCH',
+            'view' => null        // View has to be determined in controller!
+        ];
+
+        return new static();
+    }
+
+
+    /**
+     * Add route for DELETE request to the registered routes list
+     * DELETE is used to delete a resource identified by filters or ID.
+     * 
+     * @param string $route A route needs to be registered
+     * @param string $routeHandler Name of Controller and Action separated by @
+     * 
+     * @return object
+     */
+    public static function delete($route, $routeHandler)
+    {
+
+        self::$current = count(self::$routes);
+
+        list($controller, $action) = self::getControllerAction($routeHandler, $route);
+
+        self::$routes[self::$current] = [
+            'route' => strtolower($route),
+            'controller' => $controller,
+            'action' => $action,
+            'method' => 'DELETE',
+            'view' => null        // View has to be determined in controller!
+        ];
+
+        return new static();
+    }
+
+
+    /**
+     * Add route for PUT request to the registered routes list
+     * The PUT method replaces all current representations of the target resource with the request payload.
+     * 
+     * @param string $route A route needs to be registered
+     * @param string $routeHandler Name of Controller and Action separated by @
+     * 
+     * @return object
+     */
+    public static function put($route, $routeHandler)
+    {
+
+        self::$current = count(self::$routes);
+
+        list($controller, $action) = self::getControllerAction($routeHandler, $route);
+
+        self::$routes[self::$current] = [
+            'route' => strtolower($route),
+            'controller' => $controller,
+            'action' => $action,
+            'method' => 'PUT',
             'view' => null        // View has to be determined in controller!
         ];
 
@@ -66,12 +180,13 @@ class Route
      */
     public static function view($route, $view)
     {
-        self::$current = strtolower($route);
+        self::$current = count(self::$routes);
 
         self::$routes[self::$current] = [
-            'route' => self::$current,
+            'route' => strtolower($route),
             'controller' => null,   // For view routes we set 'controller=null' and this is a flag to show a static view
-            'action' => 'Index',
+            'action' => 'ShowView',
+            'method' => 'GET',
             'view' => $view
         ];
 
@@ -90,12 +205,13 @@ class Route
      */
     public static function redirect($route, $redirect_to, $status_code = 302)
     {
-        self::$current = strtolower($route);
+        self::$current = count(self::$routes);
 
         self::$routes[self::$current] = [
-            'route' => self::$current,
+            'route' => strtolower($route),
             'controller' => null,
             'action' => 'Redirect',
+            'method' => 'GET',
             'redirect to' => $redirect_to,
             'status code' => $status_code,
             'view' => null

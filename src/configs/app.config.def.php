@@ -25,6 +25,7 @@ return array(
 
     'default controller' => 'Videna\\Controllers\\HttpController',
     'default api controller' => 'Videna\\Controllers\\ApiController',
+    'default app controller' => 'Videna\\Controllers\\AppController',
 
     'user token expires' => 0, // Valid until browser closed
     'csrf token expires' => 0, // Valid until browser closed

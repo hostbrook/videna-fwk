@@ -74,14 +74,13 @@ class Lang
 		-------------------------------------------------------*/
 
         // Connect default language file
-        $lang_path =  'App/lang/' . Config::get('default language') . '.php';
-        if (is_file($lang_path)) self::setAll(include_once $lang_path);
+        self::loadDefault();
 
         // Connect new language file if required
         if (self::$code != Config::get('default language')) {
 
             $lang_path = 'App/lang/' . self::$code . '.php';
-
+            
             if (is_file($lang_path)) self::mergeWith(include_once $lang_path);
         }
 
@@ -90,5 +89,16 @@ class Lang
 		-------------------------------------------------------*/
 
         setcookie('lang', self::$code, 0, '/');
+    }
+
+
+    /**
+     * Load default language file
+     * @return void
+     */
+    public static function loadDefault()
+    {
+        $lang_path =  'App/lang/' . Config::get('default language') . '.php';
+        if (is_file($lang_path)) self::setAll(include_once $lang_path);
     }
 }

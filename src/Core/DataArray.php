@@ -18,7 +18,7 @@ trait DataArray
 
     public static function get($field)
     {
-        if (array_key_exists($field, self::$data)) return self::$data[$field];
+        if (is_array(self::$data) && array_key_exists($field, self::$data)) return self::$data[$field];
         return null;
     }
 
