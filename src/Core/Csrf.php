@@ -52,6 +52,28 @@ class Csrf
      */
     public static function valid()
     {
+
+        if (Router::get('csrf_token') == null || !isset($_COOKIE['csrf_token'])) {
+            if (Router::get('csrf_token') == null) Log::warning('CSRF token doesn\'t provided by agent.');
+            if (!isset($_COOKIE['csrf_token'])) Log::warning('Cookie "csrf_token" doesn\'t exist.');
+            return false;
+        }
+
+        $csrfToken = explode(':', $_COOKIE['csrf_token']);
+
+        if (!is_array($csrfToken) || !isset($csrfToken[1])) {
+            if (!is_array($csrfToken)) Log::warning('Cookie "csrf_token" is not array.');
+            if (!isset($csrfToken[1])) Log::warning('Cookie "csrf_token" contains a wrong array.');
+            return false;
+        }
+
+        if ($csrfToken[0] != Router::get('csrf_token') || self::getSessionId() != $csrfToken[1]) {
+            if ($csrfToken[0] != Router::get('csrf_token')) Log::warning('Cookie "csrf_token" doesn\'t match method parameter.');
+            if (self::getSessionId() != $csrfToken[1]) Log::warning('Cookie "csrf_token" doesn\'t match Session ID.');
+            return false;
+        }
+
+        /*
         if (Router::get('csrf_token') == null || !isset($_COOKIE['csrf_token'])) return false;
 
         $csrfToken = explode(':', $_COOKIE['csrf_token']);
@@ -59,6 +81,7 @@ class Csrf
         if (!is_array($csrfToken) || !isset($csrfToken[1])) return false;
 
         if ($csrfToken[0] != Router::get('csrf_token') || self::getSessionId() != $csrfToken[1]) return false;
+        */
 
         return true;
     }
@@ -85,7 +108,11 @@ class Csrf
      */
     private static function getSessionId()
     {
-        return sha1($_SERVER['DOCUMENT_ROOT'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']);
+        $documentRoot = isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '';
+        $serverAddr = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '';
+        $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        return sha1($documentRoot . $serverAddr . $userAgent . $remoteAddr);
     }
 
 }

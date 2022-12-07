@@ -33,7 +33,7 @@ class AppController extends \Videna\Core\Controller
         Lang::detect();
 
         // CSRF Protection 
-        if (Router::$method != 'GET' && !Csrf::valid()) {
+        if (!Csrf::valid()) {
             Router::$action = 'Error';
             Router::$statusCode = 403;
             Log::warning('CSRF token doesn\'t exist or outdated.');

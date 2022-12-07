@@ -10,7 +10,7 @@
 
 
 // Version
-define('FWK_VERSION', '2.2');
+define('FWK_VERSION', '2.3');
 if (!defined('PHP_VERSION')) define('PHP_VERSION', phpversion());
 
 
