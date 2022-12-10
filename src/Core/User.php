@@ -112,6 +112,10 @@ class User
         // Update public key in cookies:
         setcookie('public-key', self::getPublicKey(), $expires, '/', HOST_NAME, (HTP_PROTOCOL == 'https' ? true : false));
 
+        // Update CSRF token
+        Csrf::deleteToken();
+        Csrf::init();
+
         self::detect();
     }
 
@@ -141,6 +145,8 @@ class User
 
             unset($_COOKIE['public-key']);
         }
+
+        Csrf::deleteToken();
 
         self::clear();
         self::set(['account' => USR_UNREG]);

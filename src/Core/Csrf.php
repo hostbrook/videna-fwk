@@ -54,34 +54,24 @@ class Csrf
     {
 
         if (Router::get('csrf_token') == null || !isset($_COOKIE['csrf_token'])) {
-            if (Router::get('csrf_token') == null) Log::warning('CSRF token doesn\'t provided by agent.');
-            if (!isset($_COOKIE['csrf_token'])) Log::warning('Cookie "csrf_token" doesn\'t exist.');
+            if (Router::get('csrf_token') == null && APP_DEBUG) Log::warning('CSRF token doesn\'t provided by agent.');
+            if (!isset($_COOKIE['csrf_token'])  && APP_DEBUG) Log::warning('Cookie "csrf_token" doesn\'t exist.');
             return false;
         }
 
         $csrfToken = explode(':', $_COOKIE['csrf_token']);
 
         if (!is_array($csrfToken) || !isset($csrfToken[1])) {
-            if (!is_array($csrfToken)) Log::warning('Cookie "csrf_token" is not array.');
-            if (!isset($csrfToken[1])) Log::warning('Cookie "csrf_token" contains a wrong array.');
+            if (!is_array($csrfToken) && APP_DEBUG) Log::warning('Cookie "csrf_token" is not array.');
+            if (!isset($csrfToken[1]) && APP_DEBUG) Log::warning('Cookie "csrf_token" contains a wrong array.');
             return false;
         }
 
         if ($csrfToken[0] != Router::get('csrf_token') || self::getSessionId() != $csrfToken[1]) {
-            if ($csrfToken[0] != Router::get('csrf_token')) Log::warning('Cookie "csrf_token" doesn\'t match method parameter.');
-            if (self::getSessionId() != $csrfToken[1]) Log::warning('Cookie "csrf_token" doesn\'t match Session ID.');
+            if ($csrfToken[0] != Router::get('csrf_token') && APP_DEBUG) Log::warning('Cookie "csrf_token" doesn\'t match method parameter.');
+            if (self::getSessionId() != $csrfToken[1] && APP_DEBUG) Log::warning('Cookie "csrf_token" doesn\'t match Session ID.');
             return false;
         }
-
-        /*
-        if (Router::get('csrf_token') == null || !isset($_COOKIE['csrf_token'])) return false;
-
-        $csrfToken = explode(':', $_COOKIE['csrf_token']);
-
-        if (!is_array($csrfToken) || !isset($csrfToken[1])) return false;
-
-        if ($csrfToken[0] != Router::get('csrf_token') || self::getSessionId() != $csrfToken[1]) return false;
-        */
 
         return true;
     }

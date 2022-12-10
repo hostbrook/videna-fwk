@@ -78,7 +78,7 @@ class HttpController extends \Videna\Core\Controller
         if (Router::$method == 'POST' && !csrf::valid()) {
             Router::$action = 'Error';
             Router::$statusCode = 403;
-            Log::warning('CSRF token doesn\'t exist or outdated.');
+            if (!APP_DEBUG) Log::warning('CSRF token doesn\'t exist or outdated.');
             return;
         }
     }
