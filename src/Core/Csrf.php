@@ -54,8 +54,15 @@ class Csrf
     {
 
         if (Router::get('csrf_token') == null || !isset($_COOKIE['csrf_token'])) {
-            if (Router::get('csrf_token') == null && APP_DEBUG) Log::warning('CSRF token doesn\'t provided by agent.');
-            if (!isset($_COOKIE['csrf_token'])  && APP_DEBUG) Log::warning('Cookie "csrf_token" doesn\'t exist.');
+
+            $logArr = [];
+            if (Router::get('csrf_token') == null) $logArr[] = 'CSRF token doesn\'t provided by agent.';
+            if (!isset($_COOKIE['csrf_token'])) $logArr[] = 'Cookie "csrf_token" doesn\'t exist.';
+            if (isset($_SERVER['REQUEST_URI'])) $logArr[] = 'Requested URI: ' . htmlspecialchars($_SERVER['REQUEST_URI']);
+            if (isset($_SERVER['REMOTE_ADDR'])) $logArr[] = 'Remote address: ' . htmlspecialchars($_SERVER['REMOTE_ADDR']);
+            if (isset($_SERVER['HTTP_USER_AGENT'])) $logArr[] = 'User agent: ' . htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
+            
+            if (APP_DEBUG) Log::warning($logArr);
             return false;
         }
 
