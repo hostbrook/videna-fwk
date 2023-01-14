@@ -30,8 +30,8 @@ class ApiController extends \Videna\Core\Controller
         Lang::$code = Config::get('default language');
         Lang::loadDefault();
 
-        $response = Lang::get('title response ' . Router::$statusCode);
         // Prepare response:
+        $response = Lang::get('title response ' . Router::$statusCode);        
         View::set([
             'statusCode' => Router::$statusCode,
             'response' => $response
@@ -53,11 +53,11 @@ class ApiController extends \Videna\Core\Controller
         if ($errNr) Router::$statusCode = $errNr;
 
         $error = 'title response ' . Router::$statusCode;
-        $error = Lang::get($error) != null ? Lang::get($error) : 'Error';
+        $response = Lang::get($error) != null ? Lang::get($error) : 'Unexpected Error';
 
         View::set([
             'statusCode' => Router::$statusCode,
-            'response' => Lang::get('title response ' . Router::$statusCode)
+            'response' => $response
         ]);
     }
 

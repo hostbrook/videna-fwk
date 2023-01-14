@@ -39,7 +39,8 @@ class Mail extends PHPMailer
         parent::__construct($exceptions);
 
         // Connect app config file
-        $file_path =  'App/configs/mail.config.php';
+        if (!defined('MAIL_CONFIG')) define('MAIL_CONFIG', 'mail.config.php');
+        $file_path =  'App/configs/' . MAIL_CONFIG;
         if (is_file($file_path)) {
             $mailConfig = include_once $file_path;
         } else Log::add(["FATAL ERROR: Mail config file '$file_path' not found"], "FATAL ERROR: Mail config file not found.");

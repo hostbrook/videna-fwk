@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Pre-cooked Static Page controller
+ * Pre-cooked controller handles HTTP 'POST' and 'GET' requests to provide static and dynamic pages.
  * Videna MVC Micro-Framework
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
@@ -20,9 +20,6 @@ use \Videna\Core\Lang;
 use \Videna\Core\Csrf;
 
 
-/**
- * Class to maintain Static Page requests  
- */
 class HttpController extends \Videna\Core\Controller
 {
 
@@ -156,7 +153,7 @@ class HttpController extends \Videna\Core\Controller
 
 
     /**
-     * Get title and description for meta tags from language file
+     * Get title and description for meta tags of the language file
      * @param string $meta HTML meta teg type
      * @return void
      */

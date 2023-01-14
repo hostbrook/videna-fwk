@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Pre-cooked Web Application requests controller
+ * Pre-cooked controller handles requests to provide RESTful services.
  * Videna MVC Micro-Framework
  * 
  * @license Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
@@ -33,7 +33,7 @@ class AppController extends \Videna\Core\Controller
         Lang::detect();
 
         // CSRF Protection 
-        if (Router::$action != 'Error' && !Csrf::valid()) {
+        if (Router::$action != 'Error' && Router::$method != 'GET' && !Csrf::valid()) {
             Router::$action = 'Error';
             Router::$statusCode = 403;
             if (!APP_DEBUG) Log::warning('CSRF token doesn\'t exist or outdated.');
@@ -41,18 +41,19 @@ class AppController extends \Videna\Core\Controller
         }
         
         // Prepare response:
+        $response = Lang::get('title response ' . Router::$statusCode);        
         View::set([
             'statusCode' => Router::$statusCode,
-            'response' => Lang::get('title response ' . Router::$statusCode)
+            'response' => $response
         ]);
         
     }
 
 
     /**
-     * Action for output of error message
-     * This methot is triggered if:
-     * - redirection from action if error needs to be shown
+     * Action for output the error message
+     * This method is triggered if:
+     * - redirection from any custom action when error needs to be shown
      * 
      * @param int $errNr statusCode number
      * @return void
@@ -63,11 +64,11 @@ class AppController extends \Videna\Core\Controller
         if ($errNr) Router::$statusCode = $errNr;
 
         $error = 'title response ' . Router::$statusCode;
-        $error = Lang::get($error) != null ? Lang::get($error) : 'Error';
+        $response = Lang::get($error) != null ? Lang::get($error) : 'Unexpected Error';
 
         View::set([
             'statusCode' => Router::$statusCode,
-            'response' => Lang::get('title response ' . Router::$statusCode)
+            'response' => $response
         ]);
     }
 

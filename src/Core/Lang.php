@@ -48,7 +48,7 @@ class Lang
 
                 $lang = substr(self::$locale, 0, 2);
 
-                if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
+                if ( in_array($lang, array_keys(Config::get('supported languages'))) ) self::$code = mb_strtolower($lang);
             }
         }
 
@@ -57,7 +57,7 @@ class Lang
 
             $lang = $_COOKIE['lang'];
 
-            if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
+            if ( in_array($lang, array_keys(Config::get('supported languages'))) ) self::$code = mb_strtolower($lang);
         }
 
         // [3] (High) priority: language forced by user (if exists):
@@ -65,7 +65,7 @@ class Lang
 
             $lang = Router::$lang;
 
-            if (in_array($lang, Config::get('supported languages'))) self::$code = mb_strtolower($lang);
+            if (in_array($lang, array_keys(Config::get('supported languages'))) ) self::$code = mb_strtolower($lang);
         }
 
 

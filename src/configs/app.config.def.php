@@ -21,7 +21,9 @@ return array(
     'error view' => 'error.php',
 
     'default language' => 'en',
-    'supported languages' => ['en'],
+    'supported languages' => array(
+        "en" => "English"
+    ),
 
     'default controller' => 'Videna\\Controllers\\HttpController',
     'default api controller' => 'Videna\\Controllers\\ApiController',
