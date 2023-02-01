@@ -79,6 +79,17 @@ class Router
 
 
     /**
+     * Change action to Error and statusCode
+     * @return void
+     */
+    public static function setErrorAction($statusCode)
+    {
+        self::$action = 'Error';
+        self::$statusCode = $statusCode;
+    }
+
+
+    /**
      * Parsing the requested URI.
      * @return void
      */

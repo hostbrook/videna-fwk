@@ -77,12 +77,13 @@ class View
 
 
     /**
-     * Returns request result in  JSON
+     * Returns result in JSON
      * @return string Rended JSON
      */
     public static function returnJSON()
     {
         http_response_code(Router::$statusCode);
+        header('Content-Type: application/json; charset=utf-8');
         echo json_encode(self::getAll());
     }
 
@@ -118,7 +119,7 @@ class View
 
         ob_start();
 
-        include_once $file_path;
+        include $file_path;
 
         return ob_get_clean();
     }
