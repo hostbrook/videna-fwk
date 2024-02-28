@@ -8,14 +8,17 @@
  * @author HostBrook <support@hostbrook.com>
  */
 
+// By default application runs in debug mode.
+$_ENV['APP_DEBUG'] = true;
 
 // Version
-define('FWK_VERSION', '2.10');
+define('FWK_VERSION', '3.0');
 if (!defined('PHP_VERSION')) define('PHP_VERSION', phpversion());
 
 
 // Project paths, used in PHP scripts to include files
 define('PATH_VIEWS', 'App/Views/');
+define('PATH_APP_ENV', 'App/configs/.env');
 
 // Logs/Debug/Error files
 define('PATH_APP_LOG', 'logs/videna.log');

@@ -32,7 +32,7 @@ class Lang
 
         // Try to detect Locale
         // Locale is identified using RFC 4646 language tags
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) self::$locale = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 5);
+        if (env('HTTP_ACCEPT_LANGUAGE')) self::$locale = substr(env('HTTP_ACCEPT_LANGUAGE'), 0, 5);
 
         // Check if user have preffered language:
         if (User::get('account') > USR_UNREG and User::get('lang') != null) {

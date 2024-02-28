@@ -30,7 +30,7 @@ class Csrf
         else {
             $token = sha1(time());
             $expires = Config::get('csrf token expires');
-            setcookie('csrf_token', $token, $expires, '/', HOST_NAME, (HTP_PROTOCOL == 'https' ? true : false));
+            setcookie('csrf_token', $token, $expires, '/', env('SERVER_NAME'));
         }
 
         self::set([
@@ -54,11 +54,11 @@ class Csrf
             $logArr = [];
             if (Router::get('csrf_token') == null) $logArr[] = 'CSRF token doesn\'t provided by agent.';
             if (!isset($_COOKIE['csrf_token'])) $logArr[] = 'Cookie "csrf_token" doesn\'t exist.';
-            if (isset($_SERVER['REQUEST_URI'])) $logArr[] = 'Requested URI: ' . htmlspecialchars($_SERVER['REQUEST_URI']);
-            if (isset($_SERVER['REMOTE_ADDR'])) $logArr[] = 'Remote address: ' . htmlspecialchars($_SERVER['REMOTE_ADDR']);
-            if (isset($_SERVER['HTTP_USER_AGENT'])) $logArr[] = 'User agent: ' . htmlspecialchars($_SERVER['HTTP_USER_AGENT']);
+            if (env('REQUEST_URI')) $logArr[] = 'Requested URI: ' . htmlspecialchars(env('REQUEST_URI'));
+            if (env('REMOTE_ADDR')) $logArr[] = 'Remote address: ' . htmlspecialchars(env('REMOTE_ADDR'));
+            if (env('HTTP_USER_AGENT')) $logArr[] = 'User agent: ' . htmlspecialchars(env('HTTP_USER_AGENT'));
             
-            if (APP_DEBUG) Log::warning($logArr);
+            if (env('APP_DEBUG')) Log::warning($logArr);
             return false;
         }
 

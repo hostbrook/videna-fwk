@@ -25,15 +25,13 @@ abstract class Database
      */
     protected static function getDB()
     {
+        if (!env('DB_HOST') || !env('DB_NAME') || !env('DB_USER'))
+            Log::fatal('Can\t connect to database: Host, Databese Name or Database user are not determined in .env file');
 
-        if (USE_DB === false) {
-            Log::fatal('FATAL Error: The request to DB was initialized but DB is not allowed in the config.');
-        }
-        
         if (self::$db === null) {
 
             // Connect to DB
-            $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8';
+            $dsn = 'mysql:host=' . env('DB_HOST') . ';dbname=' . env('DB_NAME') . ';charset=utf8';
             $opt = [
                 // Throw an Exception when an error occurs:
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -42,7 +40,7 @@ abstract class Database
                 // Switch oof emulate:
                 PDO::ATTR_EMULATE_PREPARES   => false
             ];
-            self::$db = new PDO($dsn, DB_USER, DB_PASSWORD, $opt);
+            self::$db = new PDO($dsn, env('DB_USER'), env('DB_PASSWORD'), $opt);
         }
 
         return self::$db;

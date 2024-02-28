@@ -29,13 +29,7 @@ class User
      */
     public static function detect()
     {
-
-        // If Database not used - no any users can be registered
-        if (!USE_DB) {
-            self::set(['account' => USR_UNREG]);
-            return;
-        }
-
+        
         // if session ID was received via cookie, user was registered. 
         // In this case - start session:
         if (isset($_REQUEST[session_name()])) {
@@ -51,7 +45,7 @@ class User
 
             session_write_close();
         }
-
+        
         // At this point session expired or user wasn't registered
 
         // Try to recovery user login via cookies
@@ -60,7 +54,7 @@ class User
             self::set(['account' => USR_UNREG]);
             return;
         }
-
+        
         // At this point 'public-key' exists, that means user was registered
         // but session was expired. We need to check if there is a recod about the user in DB
         // So, first we get 'private-key' - footprint of client:
@@ -110,7 +104,7 @@ class User
         Tokens::updatePublicKey(self::getPublicKey(true), $userId, self::getPrivateKey(), $expires);
 
         // Update public key in cookies:
-        setcookie('public-key', self::getPublicKey(), $expires, '/', HOST_NAME, (HTP_PROTOCOL == 'https' ? true : false));
+        setcookie('public-key', self::getPublicKey(), $expires, '/', env('SERVER_NAME'));
 
         // Update CSRF token
         Csrf::deleteToken();
@@ -160,7 +154,7 @@ class User
     private static function getPrivateKey()
     {
         if (self::$PrivateKey == null)
-            self::$PrivateKey = sha1($_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR']);
+            self::$PrivateKey = sha1(env('HTTP_USER_AGENT') . env('REMOTE_ADDR'));
         return self::$PrivateKey;
     }
 

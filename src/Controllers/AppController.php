@@ -36,7 +36,7 @@ class AppController extends \Videna\Core\Controller
         if (Router::$action != 'Error' && Router::$method != 'GET' && !Csrf::valid()) {
             Router::$action = 'Error';
             Router::$statusCode = 403;
-            if (!APP_DEBUG) Log::warning('CSRF token doesn\'t exist or outdated.');
+            if (env('APP_DEBUG')) Log::warning('CSRF token doesn\'t exist or outdated.');
             return;
         }
         

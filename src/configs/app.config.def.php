@@ -11,9 +11,6 @@
 
 // Default Application constants
 
-define('URL_ABS', HTP_PROTOCOL . '://' . HOST_NAME);
-define('URL_REL', '//' . HOST_NAME);
-
 
 return array(
 

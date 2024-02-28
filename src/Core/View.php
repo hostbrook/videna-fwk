@@ -72,18 +72,18 @@ class View
 
         http_response_code(Router::$statusCode);
         
-        require_once PATH_VIEWS . self::getPath();
+        set_include_path(PATH_VIEWS);
+        require_once self::getPath();
     }
 
 
     /**
-     * Returns result in JSON
+     * Returns request result in  JSON
      * @return string Rended JSON
      */
     public static function returnJSON()
     {
         http_response_code(Router::$statusCode);
-        header('Content-Type: application/json; charset=utf-8');
         echo json_encode(self::getAll());
     }
 
@@ -119,7 +119,7 @@ class View
 
         ob_start();
 
-        include $file_path;
+        include_once $file_path;
 
         return ob_get_clean();
     }

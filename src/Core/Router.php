@@ -79,17 +79,6 @@ class Router
 
 
     /**
-     * Change action to Error and statusCode
-     * @return void
-     */
-    public static function setErrorAction($statusCode)
-    {
-        self::$action = 'Error';
-        self::$statusCode = $statusCode;
-    }
-
-
-    /**
      * Parsing the requested URI.
      * @return void
      */
@@ -118,7 +107,7 @@ class Router
 
             preg_match($pattern, trim($url, '/'), $matches);
 
-            if ($matches && $route['method'] == $_SERVER['REQUEST_METHOD']) break;
+            if ($matches && $route['method'] == ENV('REQUEST_METHOD')) break;
         }
         
         if ($matches) {
@@ -174,7 +163,7 @@ class Router
 
                     Log::warning([
                         'Injection Warning: Checking GET[] parameters in router',
-                        'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+                        'Requested URI: ' . htmlspecialchars(env('APP_URL') . env('REQUEST_URI'))
                     ]);
 
                     return;
@@ -199,7 +188,7 @@ class Router
 
                     Log::warning([
                         'Injection Warning: Checking POST[] parameters in router',
-                        'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+                        'Requested URI: ' . htmlspecialchars(env('APP_URL') . env('REQUEST_URI'))
                     ]);
 
                     return;
@@ -212,7 +201,7 @@ class Router
 
         // Checking PUT, DELETE, PATCH requests and sent via JS FETCH or Ajax
 
-        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+        $contentType = env('CONTENT_TYPE') ? trim(env('CONTENT_TYPE')) : '';
 
         if ( $contentType == "application/json" || in_array(self::$method, ['PUT', 'PATCH', 'DELETE'] )) {
 

@@ -53,7 +53,7 @@ class HttpController extends \Videna\Core\Controller
 
             Log::add([
                 'FATAL Error: The Error page not found.',
-                'Requested URI: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])                
+                'Requested URI: ' . htmlspecialchars(env('APP_URL') . env('REQUEST_URI'))                
             ], 'FATAL Error: The Error page not found.');
         }
     }
@@ -67,7 +67,7 @@ class HttpController extends \Videna\Core\Controller
     {
         // Determine User account type:
         User::detect();
-
+        
         // Determine User language:
         Lang::detect();
 
@@ -75,7 +75,7 @@ class HttpController extends \Videna\Core\Controller
         if (Router::$action != 'Error' && Router::$method == 'POST' && !csrf::valid()) {
             Router::$action = 'Error';
             Router::$statusCode = 403;
-            if (!APP_DEBUG) Log::warning('CSRF token doesn\'t exist or outdated.');
+            if (env('APP_DEBUG')) Log::warning('CSRF token doesn\'t exist or outdated.');
             return;
         }
     }

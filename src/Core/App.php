@@ -65,14 +65,14 @@ class App
                 // Method/Action doesn't exist: show error
                 Log::fatal([
                     "FATAL Error: Method  '$action' not found in the controller '$controller'.",
-                    'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+                    'URL: ' . htmlspecialchars(env('APP_URL') . env('REQUEST_URI'))
                 ]);
             }
         } else {
             // Class/Controller doesn't exist: show error
             Log::fatal([
                 "FATAL Error: Controller '$controller' not found.",
-                'URL: ' . htmlspecialchars(URL_ABS . $_SERVER['REQUEST_URI'])
+                'URL: ' . htmlspecialchars(env('APP_URL') . env('REQUEST_URI'))
             ]);
         }
     }
@@ -87,13 +87,13 @@ class App
     {
         if ($argv) return RQST_CRON;    
 
-        $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+        $contentType = env('CONTENT_TYPE') ? trim(env('CONTENT_TYPE')) : '';
         if ($contentType == "application/json") {
             if (isset($_COOKIE['csrf_token'])) return RQST_APP;
             return RQST_API;
         }
 
-        if ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) return RQST_APP;
+        if ((env('HTTP_X_REQUESTED_WITH')) and env('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest') return RQST_APP;
 
         return RQST_HTTP;
     }

@@ -24,7 +24,7 @@ class Log
 
         $fp = fopen(PATH_APP_LOG, "a");
 
-        $logLine = '[' . date("Y-m-d H:i:s") . '] ' . ($die ? 'FATAL ERROR' : $level) . "\r\n";
+        $logLine = '[' . date("Y-m-d H:i:s") . '] ' . ($level) . "\r\n";
 
         if (is_array($data)) {
             foreach ($data as $error_descr) $logLine .= "$error_descr\r\n";
@@ -39,7 +39,7 @@ class Log
             
             http_response_code(Router::$statusCode == 200 ? 500 : Router::$statusCode);
 
-            if (APP_DEBUG) die(is_array($die) ? $die[0] : $die);
+            if (env('APP_DEBUG')) die(is_array($die) ? $die[0] : $die);
             die('A fatal error has occurred.');
         }
     }
