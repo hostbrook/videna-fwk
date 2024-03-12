@@ -36,11 +36,6 @@ class Router
     public static $method;
 
     /**
-     * Locale (if exist in route)
-     */
-    public static $lang = null;
-
-    /**
      * HTTP response
      */
     public static $statusCode = 200;
@@ -107,7 +102,7 @@ class Router
 
             preg_match($pattern, trim($url, '/'), $matches);
 
-            if ($matches && $route['method'] == ENV('REQUEST_METHOD')) break;
+            if ($matches && $route['method'] == env('REQUEST_METHOD')) break;
         }
         
         if ($matches) {
@@ -123,7 +118,7 @@ class Router
 
             View::setPath($route['view']);
 
-            self::$lang = isset($matches['lang']) ? $matches['lang'] : null;
+            Lang::$code = isset($matches['lang']) ? $matches['lang'] : null;
             Route::$name = isset($route['name']) ? $route['name'] : null;
 
             self::set($matches);

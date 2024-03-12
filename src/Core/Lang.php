@@ -10,13 +10,16 @@
 
 namespace Videna\Core;
 
-
 class Lang
 {
 
     use DataArray;
 
+    // ISO 639-1 Language Codes
+    // https://www.w3schools.com/tags/ref_language_codes.asp
     public static $code = null;
+
+    // Locale is identified using RFC 4646 language tags, for example: en-US
     public static $locale = null;
 
     /**
@@ -26,61 +29,53 @@ class Lang
     public static function detect()
     {
 
-        /*-------------------------------------------------------
-		  1. Detect the locale language
-		-------------------------------------------------------*/
-
         // Try to detect Locale
-        // Locale is identified using RFC 4646 language tags
-        if (env('HTTP_ACCEPT_LANGUAGE')) self::$locale = substr(env('HTTP_ACCEPT_LANGUAGE'), 0, 5);
+        if (env('HTTP_ACCEPT_LANGUAGE')) self::$locale = \Locale::acceptFromHttp(env('HTTP_ACCEPT_LANGUAGE'));
 
-        // Check if user have preffered language:
-        if (User::get('account') > USR_UNREG and User::get('lang') != null) {
+        // If just one language is suported, set its code
+        if (count(Config::get('supported languages')) == 1) {
+            self::$code = Config::get('default language');
+        }
+        elseif (self::$code != null) {
+            // language code is forced by user in URL (set in router):
+            $lang = mb_strtolower(self::$code);
 
+            if ( 
+                in_array($lang, array_keys(Config::get('supported languages'))) ||
+                in_array($lang, Config::get('supported languages'))
+            ) self::$code = $lang;
+        }
+
+        // if language code is not detected yet - try get it from current user cookies (if exists):
+        if (self::$code == null && isset($_COOKIE['lang'])) {
+
+            $lang = mb_strtolower($_COOKIE['lang']);
+
+            if ( 
+                in_array($lang, array_keys(Config::get('supported languages'))) ||
+                in_array($lang, Config::get('supported languages'))
+            ) self::$code = $lang;
+        }
+
+        // if language code is not detected yet - try check if user has preffered language:
+        if (self::$code == null && User::get('account') > USR_UNREG and User::get('lang') != null) {
+            
             self::$code = User::get('lang');
-
-        } else {
-
-            self::$code = mb_strtolower(Config::get('default language'));
-
-            // [1] (Lowest) priority: browser language (if applicable):
-            if (self::$locale != null) {
-
-                $lang = substr(self::$locale, 0, 2);
-
-                if ( 
-                    in_array($lang, array_keys(Config::get('supported languages'))) ||
-                    in_array($lang, Config::get('supported languages'))
-                ) self::$code = mb_strtolower($lang);
-            }
-        }
-
-        // [2] (Medium) priority: language from current user coockies (if exists):
-        if (isset($_COOKIE['lang'])) {
-
-            $lang = $_COOKIE['lang'];
+        } 
+                
+        // if language code is not detected yet - try pull it from locale (if applicable):
+        if (self::$code == null && self::$locale != null) {
+            
+            $lang = mb_strtolower(substr(self::$locale, 0, 2));
 
             if ( 
                 in_array($lang, array_keys(Config::get('supported languages'))) ||
                 in_array($lang, Config::get('supported languages'))
-            ) self::$code = mb_strtolower($lang);
+            ) self::$code = $lang;
         }
+        
+        if (self::$code == null) self::$code = mb_strtolower(Config::get('default language'));
 
-        // [3] (High) priority: language forced by user (if exists):
-        if (isset(Router::$lang) and Router::$lang != null) {
-
-            $lang = Router::$lang;
-
-            if ( 
-                in_array($lang, array_keys(Config::get('supported languages'))) ||
-                in_array($lang, Config::get('supported languages'))
-            ) self::$code = mb_strtolower($lang);
-        }
-
-
-        /*-------------------------------------------------------
-		  2. Connect languages files
-		-------------------------------------------------------*/
 
         // Connect default language file
         self::loadDefault();
