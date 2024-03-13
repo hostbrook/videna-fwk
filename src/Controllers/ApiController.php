@@ -12,7 +12,6 @@ namespace Videna\Controllers;
 
 use \Videna\Core\Router;
 use \Videna\Core\View;
-use \Videna\Core\Lang;
 use \Videna\Core\Config;
 use \Videna\Core\App;
 use \Videna\Core\Log;
@@ -27,11 +26,9 @@ class ApiController extends \Videna\Core\Controller
      */
     protected function before()
     {
-        Lang::$code = Config::get('default language');
-        Lang::loadDefault();
 
         // Prepare response:
-        $response = Lang::get('title response ' . Router::$statusCode);        
+        $response = Config::get('title '.Router::$statusCode);
         View::set([
             'statusCode' => Router::$statusCode,
             'response' => $response
@@ -52,8 +49,7 @@ class ApiController extends \Videna\Core\Controller
 
         if ($errNr) Router::$statusCode = $errNr;
 
-        $error = 'title response ' . Router::$statusCode;
-        $response = Lang::get($error) != null ? Lang::get($error) : 'Unexpected Error';
+        $response = Config::get('title '.Router::$statusCode) != null ? Config::get('title '.Router::$statusCode) : 'Unexpected Error';
 
         View::set([
             'statusCode' => Router::$statusCode,

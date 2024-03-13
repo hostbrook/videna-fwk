@@ -27,7 +27,6 @@ namespace Videna\Controllers;
 use \Videna\Core\Router;
 use \Videna\Core\User;
 use \Videna\Core\Config;
-use \Videna\Core\Lang;
 
 
 class CronJob extends \Videna\Core\Controller
@@ -67,14 +66,11 @@ class CronJob extends \Videna\Core\Controller
             // Admin runs cron job by HTTP:
 
             Router::$statusCode = $errNr;
-
-            Lang::$code = Config::get('default language');
-            Lang::loadDefault();
     
             // Prepare response:
             Log::fatal([
                 'Cron job error. Status code: ', Router::$statusCode,
-                Lang::get('title response ' . Router::$statusCode)
+                Config::get('title '.Router::$statusCode)
             ]);
         }
     }

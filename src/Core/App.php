@@ -20,6 +20,11 @@ class App
     public static $requestType;
 
 
+    // Application Language Code (by ISO 639-1)
+    // https://www.w3schools.com/tags/ref_language_codes.asp
+    public static $lang = null;
+
+
     /**
      * Application constructor. Initialization of application.
      * @param array $argv Array of arguments from command line (|| false)

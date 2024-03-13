@@ -109,11 +109,9 @@ class View
         if (!isset($data['user'])) $data['user'] = (object)User::getAll();
         if (!isset($data['csrf'])) $data['csrf'] = (object)Csrf::getAll();
         if (!isset($data['_'])) $data['_'] = Lang::getAll();
-        if (!isset($data['view'])) $data['view'] = (object)[
-            'lang' => Lang::$code,
-            'locale' => Lang::$locale
-        ];
+        if (!isset($data['lang'])) $data['lang'] = Lang::$code;
         if (!isset($data['config'])) $data['config'] = Config::getAll();
+        if (!isset($data['statusCode'])) $data['statusCode'] = Router::$statusCode;
 
         extract($data, EXTR_SKIP);
 

@@ -16,6 +16,7 @@ use \Videna\Core\Router;
 use \Videna\Core\Route;
 use \Videna\Core\Config;
 use \Videna\Core\View;
+use \Videna\Core\App;
 use \Videna\Core\Lang;
 use \Videna\Core\Csrf;
 
@@ -69,7 +70,7 @@ class HttpController extends \Videna\Core\Controller
         User::detect();
         
         // Determine User language:
-        Lang::detect();
+        App::$lang = Lang::detect();
 
         // CSRF Protection 
         if (Router::$action != 'Error' && Router::$method == 'POST' && !csrf::valid()) {
@@ -97,12 +98,12 @@ class HttpController extends \Videna\Core\Controller
             '_' => Lang::getAll(),
             'view' => (object)[
                 'title' => $this->getMeta('title'),
-                'description' => $this->getMeta('description'),
-                'lang' => Lang::$code,
-                'locale' => Lang::$locale
+                'description' => $this->getMeta('description')
             ],
+            'lang' => Lang::$code,
             'route' => (object)['name' => Route::$name],
-            'config' => Config::getAll()
+            'config' => Config::getAll(),
+            'statusCode' => Router::$statusCode
         ]);
 
         View::output();

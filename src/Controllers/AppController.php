@@ -14,6 +14,7 @@ use \Videna\Core\Router;
 use \Videna\Core\User;
 use \Videna\Core\View;
 use \Videna\Core\Lang;
+use \Videna\Core\App;
 use \Videna\Core\Log;
 use \Videna\Core\Csrf;
 
@@ -30,7 +31,7 @@ class AppController extends \Videna\Core\Controller
         User::detect();
 
         // Determine User language:
-        Lang::detect();
+        App::$lang = Lang::detect();
 
         // CSRF Protection 
         if (Router::$action != 'Error' && Router::$method != 'GET' && !Csrf::valid()) {
