@@ -70,7 +70,7 @@ class HttpController extends \Videna\Core\Controller
         User::detect();
         
         // Determine User language:
-        App::$lang = Lang::detect();
+        App::setLang(Lang::detect());
 
         // CSRF Protection 
         if (Router::$action != 'Error' && Router::$method == 'POST' && !csrf::valid()) {
@@ -100,7 +100,7 @@ class HttpController extends \Videna\Core\Controller
                 'title' => $this->getMeta('title'),
                 'description' => $this->getMeta('description')
             ],
-            'lang' => Lang::$code,
+            'app' => (object)['lang' => App::getLang()],
             'route' => (object)['name' => Route::$name],
             'config' => Config::getAll(),
             'statusCode' => Router::$statusCode

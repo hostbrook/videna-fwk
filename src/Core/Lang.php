@@ -12,12 +12,7 @@ namespace Videna\Core;
 
 class Lang
 {
-
     use DataArray;
-
-    // ISO 639-1 Language Code
-    // https://www.w3schools.com/tags/ref_language_codes.asp
-    public static $code = null;
 
 
     /**
@@ -26,46 +21,45 @@ class Lang
      */
     public static function detect()
     {
+        $lang = null;
 
         // If just one language is suported, set its code
         if (count(Config::get('supported languages')) == 1) {
-            self::$code = Config::get('default language');
+            $lang = Config::get('default language');
         }
-        elseif (self::$code != null) {
+        elseif (Router::$lang != null) {
             // language code is forced by user in URL (set in router):
-            $lang = mb_strtolower(self::$code);
+            $lang = mb_strtolower(Router::$lang);
 
-            if ( 
-                in_array($lang, array_keys(Config::get('supported languages'))) ||
-                in_array($lang, Config::get('supported languages'))
-            ) self::$code = $lang;
+            if (!in_array($lang, array_keys(Config::get('supported languages'))))
+            if (!in_array($lang, Config::get('supported languages'))) $lang = null;
         }
 
         // if language code is not detected yet - try get it from current user cookies (if exists):
-        if (self::$code == null && isset($_COOKIE['lang'])) {
+        if ($lang == null && isset($_COOKIE['lang'])) {
 
             $lang = mb_strtolower($_COOKIE['lang']);
 
-            if ( 
-                in_array($lang, array_keys(Config::get('supported languages'))) ||
-                in_array($lang, Config::get('supported languages'))
-            ) self::$code = $lang;
+            if (!in_array($lang, array_keys(Config::get('supported languages'))))
+            if (!in_array($lang, Config::get('supported languages'))) $lang = null;
         }
 
         // if language code is not detected yet - try check if user has preffered language:
-        if (self::$code == null && User::get('account') > USR_UNREG and User::get('lang') != null) {
+        if ($lang == null && User::get('account') > USR_UNREG and User::get('lang') != null) {
             
-            self::$code = User::get('lang');
+            $lang = User::get('lang');
         }
         
         // if language code is not detected yet - use default language
-        if (self::$code == null) self::$code = mb_strtolower(Config::get('default language'));
+        if ($lang == null) $lang = mb_strtolower(Config::get('default language'));
 
         // Save user's languages in cookies
-        setcookie('lang', self::$code, 0, '/');
+        setcookie('lang', $lang, 0, '/');
         
         // Load language files
-        self::load();
+        self::load($lang);
+
+        return $lang;
     }
 
 
@@ -73,16 +67,16 @@ class Lang
      * Load language files
      * @return void
      */
-    public static function load()
+    public static function load($lang)
     {
         // Connect default language file
         $lang_path =  'App/lang/' . Config::get('default language') . '.php';
         if (is_file($lang_path)) self::setAll(include_once $lang_path);
         
         // Connect new language file if required
-        if (self::$code != Config::get('default language')) {
+        if ($lang != Config::get('default language')) {
 
-            $lang_path = 'App/lang/' . self::$code . '.php';
+            $lang_path = 'App/lang/' . $lang . '.php';
             
             if (is_file($lang_path)) self::mergeWith(include_once $lang_path);
         }

@@ -20,9 +20,11 @@ class App
     public static $requestType;
 
 
-    // Application Language Code (by ISO 639-1)
-    // https://www.w3schools.com/tags/ref_language_codes.asp
-    public static $lang = null;
+    /**
+     * Application language code tag by IETF BCP 47
+     * https://www.w3schools.com/tags/ref_language_codes.asp
+     */
+    private static $lang = null;
 
 
     /**
@@ -124,4 +126,27 @@ class App
         }
     }
 
+
+    /**
+     * Return application language code tag within IETF BCP 47
+     * @return string 2-symbols language tag or null
+     */
+    public static function getLang()
+    {
+        return self::$lang;
+    }
+
+
+    /**
+     * Set application language code tag within IETF BCP 47
+     *  @return bool
+     */
+    public static function setLang($lang)
+    {
+        if (in_array($lang, array_keys(Config::get('supported languages'))) || in_array($lang, Config::get('supported languages'))) {
+            self::$lang = $lang;
+            return true;
+        } 
+        return false;
+    }
 }

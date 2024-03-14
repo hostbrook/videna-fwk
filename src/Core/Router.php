@@ -45,6 +45,10 @@ class Router
      */
     public static $argv = [];
 
+    /**
+     * IETF BCP 47 Language code tag from URL
+     */
+    public static $lang = null;
 
     /**
      * Initialization of the router's variables.
@@ -118,7 +122,7 @@ class Router
 
             View::setPath($route['view']);
 
-            Lang::$code = isset($matches['lang']) ? $matches['lang'] : null;
+            self::$lang = isset($matches['lang']) ? $matches['lang'] : null;
             Route::$name = isset($route['name']) ? $route['name'] : null;
 
             self::set($matches);

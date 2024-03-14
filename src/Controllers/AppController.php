@@ -31,7 +31,7 @@ class AppController extends \Videna\Core\Controller
         User::detect();
 
         // Determine User language:
-        App::$lang = Lang::detect();
+        App::setLang(Lang::detect());
 
         // CSRF Protection 
         if (Router::$action != 'Error' && Router::$method != 'GET' && !Csrf::valid()) {
