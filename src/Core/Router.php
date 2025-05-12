@@ -90,6 +90,8 @@ class Router
             $url = strtolower($_GET['url']);
         } else $url = '/';
 
+        $matches = false;
+        
         // Checking each registered route and trying to find the match
         foreach (Route::$routes as $route) {
             $pattern = $route['route'];

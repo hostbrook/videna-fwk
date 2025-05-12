@@ -34,15 +34,12 @@ class Mail extends PHPMailer
      */
     public function __construct($exceptions = null)
     {
-
         // Init PHPMailer first
         parent::__construct($exceptions);
 
         // Set generic settings
         $this->isSMTP();
         $this->isHTML(true);
-        $this->CharSet = 'UTF-8';
-        $this->Encoding = 'base64';
 
         // Connect PHPMailer config file
         if (env('MAIL_CONFIG')) {
@@ -76,7 +73,6 @@ class Mail extends PHPMailer
         if (env('DKIM_DOMAIN')) $this->DKIM_domain = env('DKIM_DOMAIN');
         if (env('DKIM_SELECTOR')) $this->DKIM_selector = env('DKIM_SELECTOR');
         if (env('DKIM_IDENTITY')) $this->DKIM_identity = env('DKIM_IDENTITY');
-        //'DKIM_private' => 'path/to/your/private.key',
         if (env('DKIM_PRIVATE_KEY')) $this->DKIM_private = env('DKIM_PRIVATE_KEY');
     }
 }
