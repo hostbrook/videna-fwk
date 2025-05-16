@@ -46,6 +46,7 @@ class HttpController extends \Videna\Core\Controller
     {
 
         if ($statusCode) Router::$statusCode = $statusCode;
+        Router::$action = 'Error';
 
         View::setPath(Config::get('error view'));
 

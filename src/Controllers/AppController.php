@@ -63,6 +63,7 @@ class AppController extends \Videna\Core\Controller
     {
 
         if ($errNr) Router::$statusCode = $errNr;
+        Router::$action = 'Error';
 
         $error = 'title response ' . Router::$statusCode;
         $response = Lang::get($error) != null ? Lang::get($error) : 'Unexpected Error';
