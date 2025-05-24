@@ -18,7 +18,7 @@ class Csrf
 
 
     /**
-     * Create CSRF token and device ID fpr current session
+     * Create CSRF token and device ID for current session
      * @return void
      */
     public static function init()

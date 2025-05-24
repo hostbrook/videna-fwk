@@ -88,9 +88,12 @@ class User
      * Log in user into a application
      * NOTE: Before call this function, user needs to be authenticated and User ID known 
      * @param $userId is `user_id` in DB table `users`
+     * @param $expires is The time the cookie expires, is in number of seconds since the epoch. 
+     *        For instance, time()+60*60*24*30 will set the cookie to expire in 30 days.
+     *        If set to 0, the cookie will expire at the end of the session (when the browser closes).
      * @return void
      */
-    public static function login($userId)
+    public static function login($userId, $expires=0)
     {
 
         // Add user ID info in session:
@@ -100,7 +103,6 @@ class User
         session_write_close();
 
         // Update public key in DB:
-        $expires = Config::get('user token expires');
         Tokens::updatePublicKey(self::getPublicKey(true), $userId, self::getPrivateKey(), $expires);
 
         // Update public key in cookies:

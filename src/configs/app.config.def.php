@@ -26,10 +26,9 @@ return array(
     'default api controller' => 'Videna\\Controllers\\ApiController',
     'default app controller' => 'Videna\\Controllers\\AppController',
 
-    'user token expires' => 0, // Valid until browser closed
     'csrf token expires' => 0, // Valid until browser closed
 
-    // Default resposes titles    
+    // Default resposes titles
     'title 200' => '200 OK',
     'title 400' => 'Error 400: Bad Request',
     'title 401' => 'Error 401: Unauthorized',
