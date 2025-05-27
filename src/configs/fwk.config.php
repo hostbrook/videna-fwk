@@ -12,7 +12,7 @@
 $_ENV['APP_DEBUG'] = true;
 
 // Version
-define('FWK_VERSION', '3.3');
+define('FWK_VERSION', '3.4');
 if (!defined('PHP_VERSION')) define('PHP_VERSION', phpversion());
 
 

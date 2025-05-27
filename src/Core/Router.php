@@ -272,7 +272,7 @@ class Router
         $str = strip_tags($param);
 
         // trim() - Remove "\n\r\t\v\0" from the beginning and end of a string
-        $str = trim($str, "\n\r\t\v\0");
+        //$str = trim($str, "\n\r\t\v\0");
 
         // stripslashes() - Returns a string with backslashes stripped off (\' becomes ' and so on).
         // Double backslashes (\\) are made into a single backslash (\). 
