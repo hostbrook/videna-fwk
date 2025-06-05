@@ -73,10 +73,18 @@ class Config
 
     private static function checkEnvValue($value) 
     {
-        $value = trim($value," '\"");
+        $value = trim($value," ");
+
+        if ($value != trim($value,"\'\"")) return trim($value,"\'\"");
         
         if (strtolower($value) == 'true') return true;
         if (strtolower($value) == 'false') return false;
+
+        if (is_numeric($value)) {
+            if (is_float($value)) return (float)$value;
+            if (is_int($value)) return (int)$value;
+        }
+
         if (is_string($value)) return $value;
     
         return null;

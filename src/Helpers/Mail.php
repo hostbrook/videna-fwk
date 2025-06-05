@@ -70,9 +70,16 @@ class Mail extends PHPMailer
         // Keys are generated here: https://tools.socketlabs.com/dkim/generator
         // Check DKIM here: https://dmarcly.com/tools/dkim-record-checker
         // Check mail here: https://www.mail-tester.com/
-        if (env('DKIM_DOMAIN')) $this->DKIM_domain = env('DKIM_DOMAIN');
-        if (env('DKIM_SELECTOR')) $this->DKIM_selector = env('DKIM_SELECTOR');
-        if (env('DKIM_IDENTITY')) $this->DKIM_identity = env('DKIM_IDENTITY');
-        if (env('DKIM_PRIVATE_KEY')) $this->DKIM_private = env('DKIM_PRIVATE_KEY');
+        if (env('DKIM_PRIVATE_KEY') and env('DKIM_DOMAIN') and env('DKIM_SELECTOR') and env('DKIM_IDENTITY')) {
+            if(is_file(env('DKIM_PRIVATE_KEY'))) {
+                $this->DKIM_private = env('DKIM_PRIVATE_KEY');
+                $this->DKIM_domain = env('DKIM_DOMAIN');
+                $this->DKIM_selector = env('DKIM_SELECTOR');
+                $this->DKIM_identity = env('DKIM_IDENTITY');
+                Log::info('Email has been signed with DKIM.');
+            }
+            else Log::warning('DKIM private key file not found.');
+        }
+        
     }
 }

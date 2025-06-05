@@ -14,18 +14,9 @@
  */
 function env($name) 
 {
+    if (isset($_ENV[$name]))  return $_ENV[$name];
 
-    if (isset($_ENV[$name])) {
-        $value = $_ENV[$name];
-    } 
-    elseif (isset($_SERVER[$name])) {
-        $value = $_SERVER[$name];
-    } 
-    else return null;
-
-    if (strtolower($value) == 'true') return true;
-    if (strtolower($value) == 'false') return false;
-    if (is_string($value)) return $value;
+    if (isset($_SERVER[$name])) return $_SERVER[$name];
 
     return null;
 }
