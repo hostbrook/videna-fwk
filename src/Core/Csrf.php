@@ -61,6 +61,8 @@ class Csrf
             if (env('APP_DEBUG')) Log::warning($logArr);
             return false;
         }
+        
+        if (Router::get('csrf_token') != $_COOKIE['csrf_token']) return false;
 
         return true;
     }

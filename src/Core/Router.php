@@ -116,8 +116,15 @@ class Router
             self::$method = $route['method'];
             
             if ($route['controller'] == null) {
-                // if ether view or redirect - set default controller:
+                // if ether view or redirect - set default controller for HTTP request:
                 self::$controller = App::getDefaultController();
+
+                if (App::$requestType != RQST_HTTP) {
+                    self::$action =  'Error';
+                    self::$statusCode = 404;
+                    return;
+                }
+               
             } else self::$controller = 'App\\Controllers\\' . $route['controller'];
             
             self::$action = $route['action'];
